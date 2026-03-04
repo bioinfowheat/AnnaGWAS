@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GWAS Workflow with MultiQC Integration</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; max-width: 1200px; }
+        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 40px; border-left: 4px solid #3498db; padding-left: 15px; }
+        h3 { color: #7f8c8d; margin-top: 25px; }
+        h4 { color: #95a5a6; margin-top: 20px; }
+        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #3498db; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .query { background-color: #ecf0f1; padding: 15px; border-left: 4px solid #3498db; margin: 20px 0; }
+        .phase { background-color: #e8f6f3; padding: 20px; border-left: 4px solid #27ae60; margin: 20px 0; border-radius: 5px; }
+        .warning { background-color: #fdf2e9; padding: 15px; border-left: 4px solid #e74c3c; margin: 20px 0; }
+        .tip { background-color: #fef9e7; padding: 15px; border-left: 4px solid #f39c12; margin: 20px 0; }
+        .multiqc { background-color: #e8daef; padding: 20px; border-left: 4px solid #9b59b6; margin: 20px 0; border-radius: 5px; }
+        .multiqc h3 { color: #8e44ad; margin-top: 0; }
+        .checkpoint { background-color: #d5f5e3; padding: 15px; border: 2px dashed #27ae60; margin: 20px 0; border-radius: 8px; }
+        .checkpoint-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .checkpoint-badge { background-color: #27ae60; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9em; }
+        .tool { background-color: #ebf5fb; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        code { background-color: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; }
+        pre { background-color: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .ref { font-size: 0.9em; color: #7f8c8d; }
+        a { color: #3498db; }
+        .workflow-container { margin: 30px 0; }
+        .toc { background-color: #f8f9fa; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .toc ul { list-style-type: none; padding-left: 20px; }
+        .toc li { margin: 8px 0; }
+        .stat { font-weight: bold; color: #2980b9; }
+        .metrics-table { font-size: 0.9em; }
+        .metrics-table th { background-color: #9b59b6; }
+        .fail { color: #e74c3c; font-weight: bold; }
+        .pass { color: #27ae60; font-weight: bold; }
+        .warn { color: #f39c12; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>GWAS Workflow with MultiQC Integration</h1>
+    <p><em>From Whole Genome Sequencing FASTQ Files to Association Analysis</em></p>
+    <p><strong>Project:</strong> Annas_GWAS | <strong>Generated:</strong> 2026-02-26</p>
+
+    <div class="multiqc">
+        <h3>MultiQC Quality Control Strategy</h3>
+        <p><strong>MultiQC</strong> (<a href="https://multiqc.info">multiqc.info</a>) aggregates quality control metrics from multiple bioinformatics tools into a single interactive HTML report. This workflow includes <strong>4 QC checkpoints</strong> that generate MultiQC reports at critical stages:</p>
+        <table>
+            <tr>
+                <th>Checkpoint</th>
+                <th>Stage</th>
+                <th>Tools Aggregated</th>
+                <th>Key Metrics</th>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC1</span></td>
+                <td>Read Quality</td>
+                <td>FastQC, fastp</td>
+                <td>Read quality, adapter content, duplication</td>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC2</span></td>
+                <td>Alignment</td>
+                <td>samtools stats/flagstat/idxstats, Picard</td>
+                <td>Mapping rate, coverage, duplicates</td>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC3</span></td>
+                <td>Variants</td>
+                <td>bcftools stats, VCFtools</td>
+                <td>Variant counts, Ti/Tv ratio, quality distribution</td>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC4</span></td>
+                <td>GWAS Ready</td>
+                <td>PLINK, custom scripts</td>
+                <td>Sample QC, HWE, missingness, PCA</td>
+            </tr>
+        </table>
+    </div>
+
+    <h2>Table of Contents</h2>
+    <div class="toc">
+        <ul>
+            <li><a href="#overview">1. Workflow Overview</a></li>
+            <li><a href="#multiqc-setup">2. MultiQC Setup and Configuration</a></li>
+            <li><a href="#phase1">3. Phase 1: Read QC + <span class="checkpoint-badge">QC1</span></a></li>
+            <li><a href="#phase2">4. Phase 2-3: Alignment + <span class="checkpoint-badge">QC2</span></a></li>
+            <li><a href="#phase4">5. Phase 4-5: Variant Calling + <span class="checkpoint-badge">QC3</span></a></li>
+            <li><a href="#phase6">6. Phase 6-7: Sample QC + <span class="checkpoint-badge">QC4</span></a></li>
+            <li><a href="#phase8">7. Phase 8-9: Association Analysis</a></li>
+            <li><a href="#qc-summary">8. QC Decision Points and Thresholds</a></li>
+            <li><a href="#software">9. Software Summary</a></li>
+            <li><a href="#references">10. References</a></li>
+        </ul>
+    </div>
+
+    <h2 id="overview">1. Workflow Overview with QC Checkpoints</h2>
+    <div class="workflow-container">
+        <svg viewBox="0 0 1000 1100" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+            <!-- Background -->
+            <rect width="1000" height="1100" fill="#f8f9fa"/>
+
+            <!-- Title -->
+            <text x="500" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#2c3e50">GWAS Workflow with MultiQC Checkpoints</text>
+
+            <!-- Phase 1: Input -->
+            <rect x="350" y="60" width="300" height="50" rx="8" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+            <text x="500" y="85" text-anchor="middle" font-size="13" font-weight="bold" fill="white">INPUT: 96 FASTQ Files + Phenotypes</text>
+
+            <path d="M500 110 L500 130" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Phase 1: Read QC -->
+            <rect x="300" y="135" width="280" height="70" rx="8" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+            <text x="440" y="160" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 1: Read QC</text>
+            <text x="440" y="180" text-anchor="middle" font-size="11" fill="white">FastQC | fastp</text>
+            <text x="440" y="195" text-anchor="middle" font-size="9" fill="#ffeaa7">Trim adapters, filter low quality</text>
+
+            <!-- QC1 Checkpoint -->
+            <rect x="620" y="140" width="160" height="60" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+            <text x="700" y="165" text-anchor="middle" font-size="12" font-weight="bold" fill="white">QC CHECKPOINT 1</text>
+            <text x="700" y="182" text-anchor="middle" font-size="10" fill="white">multiqc_reads.html</text>
+            <path d="M580 170 L618 170" stroke="#9b59b6" stroke-width="2" stroke-dasharray="5,3"/>
+
+            <path d="M440 205 L440 230" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Phase 2-3: Alignment -->
+            <rect x="300" y="235" width="280" height="90" rx="8" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+            <text x="440" y="260" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 2-3: Alignment</text>
+            <text x="440" y="280" text-anchor="middle" font-size="11" fill="white">BWA-MEM2 | samtools</text>
+            <text x="440" y="297" text-anchor="middle" font-size="9" fill="#ffeaa7">Align, sort, mark duplicates, index</text>
+            <text x="440" y="312" text-anchor="middle" font-size="9" fill="#ffeaa7">Generate stats/flagstat/idxstats</text>
+
+            <!-- QC2 Checkpoint -->
+            <rect x="620" y="245" width="160" height="60" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+            <text x="700" y="270" text-anchor="middle" font-size="12" font-weight="bold" fill="white">QC CHECKPOINT 2</text>
+            <text x="700" y="287" text-anchor="middle" font-size="10" fill="white">multiqc_alignment.html</text>
+            <path d="M580 275 L618 275" stroke="#9b59b6" stroke-width="2" stroke-dasharray="5,3"/>
+
+            <path d="M440 325 L440 350" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Phase 4-5: Variant Calling -->
+            <rect x="300" y="355" width="280" height="90" rx="8" fill="#27ae60" stroke="#1e8449" stroke-width="2"/>
+            <text x="440" y="380" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 4-5: Variant Calling</text>
+            <text x="440" y="400" text-anchor="middle" font-size="11" fill="white">FreeBayes | bcftools</text>
+            <text x="440" y="417" text-anchor="middle" font-size="9" fill="#a9dfbf">Joint calling, filtering</text>
+            <text x="440" y="432" text-anchor="middle" font-size="9" fill="#a9dfbf">bcftools stats on raw + filtered</text>
+
+            <!-- QC3 Checkpoint -->
+            <rect x="620" y="365" width="160" height="60" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+            <text x="700" y="390" text-anchor="middle" font-size="12" font-weight="bold" fill="white">QC CHECKPOINT 3</text>
+            <text x="700" y="407" text-anchor="middle" font-size="10" fill="white">multiqc_variants.html</text>
+            <path d="M580 395 L618 395" stroke="#9b59b6" stroke-width="2" stroke-dasharray="5,3"/>
+
+            <path d="M440 445 L440 470" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Phase 6-7: Sample QC -->
+            <rect x="300" y="475" width="280" height="90" rx="8" fill="#2980b9" stroke="#1f618d" stroke-width="2"/>
+            <text x="440" y="500" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 6-7: Sample QC + PCA</text>
+            <text x="440" y="520" text-anchor="middle" font-size="11" fill="white">PLINK 2.0</text>
+            <text x="440" y="537" text-anchor="middle" font-size="9" fill="#aed6f1">Missingness, HWE, MAF, relatedness</text>
+            <text x="440" y="552" text-anchor="middle" font-size="9" fill="#aed6f1">Heterozygosity, PCA</text>
+
+            <!-- QC4 Checkpoint -->
+            <rect x="620" y="485" width="160" height="60" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+            <text x="700" y="510" text-anchor="middle" font-size="12" font-weight="bold" fill="white">QC CHECKPOINT 4</text>
+            <text x="700" y="527" text-anchor="middle" font-size="10" fill="white">multiqc_gwas.html</text>
+            <path d="M580 515 L618 515" stroke="#9b59b6" stroke-width="2" stroke-dasharray="5,3"/>
+
+            <path d="M440 565 L440 590" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Phase 8: Association -->
+            <rect x="300" y="595" width="280" height="70" rx="8" fill="#c0392b" stroke="#922b21" stroke-width="2"/>
+            <text x="440" y="620" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 8: Association</text>
+            <text x="440" y="640" text-anchor="middle" font-size="11" fill="white">PLINK 2.0 --glm firth</text>
+            <text x="440" y="655" text-anchor="middle" font-size="9" fill="#f5b7b1">Logistic regression with covariates</text>
+
+            <path d="M440 665 L440 690" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Phase 9: Visualization -->
+            <rect x="300" y="695" width="280" height="70" rx="8" fill="#1abc9c" stroke="#16a085" stroke-width="2"/>
+            <text x="440" y="720" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 9: Visualization</text>
+            <text x="440" y="740" text-anchor="middle" font-size="11" fill="white">R (qqman) | genotype_plot</text>
+            <text x="440" y="755" text-anchor="middle" font-size="9" fill="#a3e4d7">Manhattan, QQ, genotype plots</text>
+
+            <path d="M440 765 L440 790" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Output -->
+            <rect x="350" y="795" width="180" height="45" rx="8" fill="#2c3e50" stroke="#1a252f" stroke-width="2"/>
+            <text x="440" y="820" text-anchor="middle" font-size="13" font-weight="bold" fill="white">GWAS Results</text>
+
+            <!-- Legend -->
+            <rect x="60" y="140" width="200" height="140" rx="5" fill="#fff" stroke="#ddd" stroke-width="1"/>
+            <text x="160" y="165" text-anchor="middle" font-size="12" font-weight="bold" fill="#2c3e50">Legend</text>
+            <rect x="80" y="180" width="20" height="15" fill="#9b59b6"/>
+            <text x="110" y="192" font-size="11" fill="#2c3e50">MultiQC Checkpoint</text>
+            <line x1="80" y1="215" x2="100" y2="215" stroke="#9b59b6" stroke-width="2" stroke-dasharray="5,3"/>
+            <text x="110" y="218" font-size="11" fill="#2c3e50">QC data flow</text>
+            <rect x="80" y="235" width="20" height="15" fill="#27ae60"/>
+            <text x="110" y="247" font-size="11" fill="#2c3e50">Processing phase</text>
+
+            <!-- Arrow marker -->
+            <defs>
+                <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#2c3e50"/>
+                </marker>
+            </defs>
+        </svg>
+    </div>
+
+    <h2 id="multiqc-setup">2. MultiQC Setup and Configuration</h2>
+    <div class="phase">
+        <h3>Installation</h3>
+        <pre>
+# Install via conda (recommended)
+conda install -c bioconda multiqc
+
+# Or via pip
+pip install multiqc
+
+# Verify installation
+multiqc --version
+        </pre>
+
+        <h3>MultiQC Configuration File</h3>
+        <p>Create a <code>multiqc_config.yaml</code> file in your project directory to customize reports:</p>
+        <pre>
+# multiqc_config.yaml
+title: "GWAS Pipeline QC Report"
+subtitle: "96 samples - Annas_GWAS project"
+
+# Report customization
+report_header_info:
+    - Project: "Annas_GWAS"
+    - Samples: "96"
+    - Phenotype: "Binary (0/1)"
+
+# Module order (customize per checkpoint)
+module_order:
+    - fastqc
+    - fastp
+    - samtools
+    - picard
+    - bcftools
+
+# Sample name cleaning
+extra_fn_clean_exts:
+    - ".dedup"
+    - ".sorted"
+    - ".trimmed"
+    - "_R1"
+    - "_R2"
+
+# Table columns to show
+table_columns_visible:
+    FastQC:
+        percent_duplicates: True
+        percent_gc: True
+        avg_sequence_length: True
+        total_sequences: True
+    Samtools:
+        mapped_passed: True
+        error_rate: True
+
+# Export data for downstream use
+export_plots: true
+data_format: "tsv"
+        </pre>
+
+        <h3>Supported Tools</h3>
+        <p>MultiQC automatically recognizes output from these tools in our pipeline:</p>
+        <table>
+            <tr>
+                <th>Tool</th>
+                <th>Recognized Files</th>
+                <th>Checkpoint</th>
+            </tr>
+            <tr>
+                <td>FastQC</td>
+                <td><code>*_fastqc.zip</code>, <code>*_fastqc/</code></td>
+                <td>QC1</td>
+            </tr>
+            <tr>
+                <td>fastp</td>
+                <td><code>*.fastp.json</code></td>
+                <td>QC1</td>
+            </tr>
+            <tr>
+                <td>samtools stats</td>
+                <td><code>*.stats</code>, <code>*.txt</code> (with stats header)</td>
+                <td>QC2</td>
+            </tr>
+            <tr>
+                <td>samtools flagstat</td>
+                <td><code>*.flagstat</code></td>
+                <td>QC2</td>
+            </tr>
+            <tr>
+                <td>samtools idxstats</td>
+                <td><code>*.idxstats</code></td>
+                <td>QC2</td>
+            </tr>
+            <tr>
+                <td>Picard MarkDuplicates</td>
+                <td><code>*.metrics.txt</code></td>
+                <td>QC2</td>
+            </tr>
+            <tr>
+                <td>bcftools stats</td>
+                <td><code>*.bcftools_stats.txt</code></td>
+                <td>QC3</td>
+            </tr>
+        </table>
+
+        <p class="ref">Reference: <a href="https://multiqc.info/docs/">MultiQC Documentation</a> | <a href="https://github.com/MultiQC/MultiQC">GitHub Repository</a></p>
+    </div>
+
+    <h2 id="phase1">3. Phase 1: Read Quality Control</h2>
+    <div class="phase">
+        <h3>Objective</h3>
+        <p>Assess and improve raw read quality, remove adapters and low-quality bases.</p>
+
+        <h3>Step 1.1: Initial Quality Assessment</h3>
+        <pre>
+# Create output directories
+mkdir -p qc/fastqc_raw qc/fastqc_clean qc/fastp
+
+# Run FastQC on raw reads (all samples in parallel)
+fastqc -t 24 -o qc/fastqc_raw/ data/fastq/*.fastq.gz
+        </pre>
+
+        <h3>Step 1.2: Read Trimming with fastp</h3>
+        <pre>
+# Process each sample
+for sample in $(ls data/fastq/*_R1.fastq.gz | xargs -n1 basename | sed 's/_R1.fastq.gz//'); do
+    fastp \
+        -i data/fastq/${sample}_R1.fastq.gz \
+        -I data/fastq/${sample}_R2.fastq.gz \
+        -o results/trimmed/${sample}_R1.trimmed.fastq.gz \
+        -O results/trimmed/${sample}_R2.trimmed.fastq.gz \
+        --detect_adapter_for_pe \
+        --qualified_quality_phred 20 \
+        --length_required 50 \
+        --correction \
+        --thread 8 \
+        --json qc/fastp/${sample}.fastp.json \
+        --html qc/fastp/${sample}.fastp.html
+done
+        </pre>
+
+        <h3>Step 1.3: Post-trimming Quality Check</h3>
+        <pre>
+# Run FastQC on trimmed reads
+fastqc -t 24 -o qc/fastqc_clean/ results/trimmed/*.fastq.gz
+        </pre>
+    </div>
+
+    <div class="checkpoint">
+        <div class="checkpoint-header">
+            <span class="checkpoint-badge">QC CHECKPOINT 1</span>
+            <strong>Read Quality Report</strong>
+        </div>
+        <h4>Generate MultiQC Report</h4>
+        <pre>
+# Generate QC1 report
+multiqc qc/fastqc_raw qc/fastqc_clean qc/fastp \
+    -o reports/qc1_reads \
+    -n multiqc_reads.html \
+    -c multiqc_config.yaml \
+    --title "QC1: Read Quality Assessment"
+        </pre>
+
+        <h4>What to Check in the Report</h4>
+        <table class="metrics-table">
+            <tr>
+                <th>Metric</th>
+                <th>Expected</th>
+                <th>Action if Failed</th>
+            </tr>
+            <tr>
+                <td>Per base sequence quality</td>
+                <td>Q20+ across all positions</td>
+                <td>Trim more aggressively</td>
+            </tr>
+            <tr>
+                <td>Per sequence quality scores</td>
+                <td>Peak at Q30+</td>
+                <td>Check sequencing run quality</td>
+            </tr>
+            <tr>
+                <td>Adapter content</td>
+                <td>&lt; 5% after trimming</td>
+                <td>Re-run fastp with explicit adapters</td>
+            </tr>
+            <tr>
+                <td>Sequence duplication</td>
+                <td>&lt; 30% (WGS)</td>
+                <td>Note for later; duplicates marked post-alignment</td>
+            </tr>
+            <tr>
+                <td>GC content</td>
+                <td>Matches expected genome GC</td>
+                <td>Check for contamination</td>
+            </tr>
+            <tr>
+                <td>Reads passing filters (fastp)</td>
+                <td>&gt; 90%</td>
+                <td>Investigate low-quality samples</td>
+            </tr>
+        </table>
+
+        <h4>Decision Point</h4>
+        <div class="warning">
+            <p><strong>STOP if:</strong></p>
+            <ul>
+                <li>More than 10% of samples have &lt; 80% reads passing filters</li>
+                <li>Systematic quality issues across all samples (sequencing problem)</li>
+                <li>Unexpected GC distribution suggesting contamination</li>
+            </ul>
+        </div>
+    </div>
+
+    <h2 id="phase2">4. Phase 2-3: Alignment and Post-Processing</h2>
+    <div class="phase">
+        <h3>Objective</h3>
+        <p>Align reads to reference genome and prepare analysis-ready BAM files.</p>
+
+        <h3>Step 2.1: Index Reference</h3>
+        <pre>
+# Index reference genome (one time)
+bwa index reference.fasta
+samtools faidx reference.fasta
+        </pre>
+
+        <h3>Step 2.2: Align Reads</h3>
+        <pre>
+# Align each sample
+for sample in $(cat sample_list.txt); do
+    bwa mem -t 16 -M \
+        -R "@RG\tID:${sample}\tSM:${sample}\tPL:ILLUMINA\tLB:lib1" \
+        reference.fasta \
+        results/trimmed/${sample}_R1.trimmed.fastq.gz \
+        results/trimmed/${sample}_R2.trimmed.fastq.gz \
+    | samtools view -bS - \
+    | samtools sort -@ 8 -o results/aligned/${sample}.sorted.bam -
+done
+        </pre>
+
+        <h3>Step 2.3: Mark Duplicates</h3>
+        <pre>
+# Mark duplicates with samtools (generates metrics)
+for sample in $(cat sample_list.txt); do
+    samtools markdup -@ 8 \
+        -f qc/dedup/${sample}.markdup_metrics.txt \
+        results/aligned/${sample}.sorted.bam \
+        results/aligned/${sample}.dedup.bam
+
+    samtools index results/aligned/${sample}.dedup.bam
+done
+        </pre>
+
+        <h3>Step 2.4: Generate Alignment Statistics</h3>
+        <pre>
+# Generate comprehensive statistics for each sample
+mkdir -p qc/alignment
+
+for sample in $(cat sample_list.txt); do
+    # Detailed stats
+    samtools stats results/aligned/${sample}.dedup.bam \
+        > qc/alignment/${sample}.stats
+
+    # Quick flagstat summary
+    samtools flagstat results/aligned/${sample}.dedup.bam \
+        > qc/alignment/${sample}.flagstat
+
+    # Per-chromosome stats
+    samtools idxstats results/aligned/${sample}.dedup.bam \
+        > qc/alignment/${sample}.idxstats
+
+    # Coverage statistics (optional but useful)
+    samtools coverage results/aligned/${sample}.dedup.bam \
+        > qc/alignment/${sample}.coverage
+done
+        </pre>
+    </div>
+
+    <div class="checkpoint">
+        <div class="checkpoint-header">
+            <span class="checkpoint-badge">QC CHECKPOINT 2</span>
+            <strong>Alignment Quality Report</strong>
+        </div>
+        <h4>Generate MultiQC Report</h4>
+        <pre>
+# Generate QC2 report
+multiqc qc/alignment qc/dedup \
+    -o reports/qc2_alignment \
+    -n multiqc_alignment.html \
+    -c multiqc_config.yaml \
+    --title "QC2: Alignment Quality Assessment"
+        </pre>
+
+        <h4>What to Check in the Report</h4>
+        <table class="metrics-table">
+            <tr>
+                <th>Metric</th>
+                <th>Expected</th>
+                <th>Action if Failed</th>
+            </tr>
+            <tr>
+                <td>Mapped reads</td>
+                <td>&gt; 95%</td>
+                <td>Check reference genome, contamination</td>
+            </tr>
+            <tr>
+                <td>Properly paired</td>
+                <td>&gt; 90%</td>
+                <td>Check library prep, insert size</td>
+            </tr>
+            <tr>
+                <td>Duplication rate</td>
+                <td>&lt; 30% (15X WGS)</td>
+                <td>May indicate over-amplification</td>
+            </tr>
+            <tr>
+                <td>Insert size</td>
+                <td>Expected library size (300-500bp typical)</td>
+                <td>Library QC issue if bimodal</td>
+            </tr>
+            <tr>
+                <td>Error rate</td>
+                <td>&lt; 1%</td>
+                <td>Sequencing quality issue</td>
+            </tr>
+            <tr>
+                <td>Coverage uniformity</td>
+                <td>Low coefficient of variation</td>
+                <td>GC bias, capture issues (not expected for WGS)</td>
+            </tr>
+        </table>
+
+        <h4>Coverage Analysis</h4>
+        <pre>
+# Calculate mean coverage per sample
+echo -e "Sample\tMean_Coverage\tMedian_Coverage" > qc/coverage_summary.txt
+for sample in $(cat sample_list.txt); do
+    cov=$(samtools depth results/aligned/${sample}.dedup.bam | \
+          awk '{sum+=$3; n++} END {print sum/n}')
+    echo -e "${sample}\t${cov}" >> qc/coverage_summary.txt
+done
+
+# Verify target coverage (15X)
+awk '$2 < 10 {print "WARNING: Low coverage sample:", $1, $2"X"}' qc/coverage_summary.txt
+        </pre>
+
+        <h4>Decision Point</h4>
+        <div class="warning">
+            <p><strong>STOP if:</strong></p>
+            <ul>
+                <li>Any sample has &lt; 80% mapping rate</li>
+                <li>Mean coverage &lt; 10X for more than 10% of samples</li>
+                <li>Duplication rate &gt; 50% across multiple samples</li>
+            </ul>
+            <p><strong>Consider removing samples with:</strong></p>
+            <ul>
+                <li>Coverage &lt; 8X (may increase missing genotypes)</li>
+                <li>Duplication &gt; 40% (effective coverage too low)</li>
+            </ul>
+        </div>
+    </div>
+
+    <h2 id="phase4">5. Phase 4-5: Variant Calling and Filtering</h2>
+    <div class="phase">
+        <h3>Objective</h3>
+        <p>Call variants across all samples and apply quality filters.</p>
+
+        <h3>Step 4.1: Create BAM List</h3>
+        <pre>
+# Create list of BAM files for joint calling
+ls results/aligned/*.dedup.bam > bam_list.txt
+        </pre>
+
+        <h3>Step 4.2: Joint Variant Calling (FreeBayes)</h3>
+        <pre>
+# Joint calling
+freebayes -f reference.fasta \
+    -L bam_list.txt \
+    --min-mapping-quality 20 \
+    --min-base-quality 20 \
+    --min-alternate-count 2 \
+    --min-alternate-fraction 0.1 \
+    > results/variants/raw.vcf
+
+# Compress and index
+bgzip -c results/variants/raw.vcf > results/variants/raw.vcf.gz
+tabix -p vcf results/variants/raw.vcf.gz
+
+# Generate stats on RAW variants
+bcftools stats results/variants/raw.vcf.gz > qc/variants/raw.bcftools_stats.txt
+        </pre>
+
+        <h3>Step 4.3: Variant Filtering</h3>
+        <pre>
+# Apply quality filters
+bcftools filter -i 'QUAL>20 && INFO/DP>50 && INFO/DP<5000' \
+    results/variants/raw.vcf.gz | \
+bcftools view -m2 -M2 -v snps | \
+bgzip -c > results/variants/filtered.vcf.gz
+
+tabix -p vcf results/variants/filtered.vcf.gz
+
+# Generate stats on FILTERED variants
+bcftools stats results/variants/filtered.vcf.gz > qc/variants/filtered.bcftools_stats.txt
+
+# Per-sample stats
+bcftools stats -s - results/variants/filtered.vcf.gz > qc/variants/filtered_persample.bcftools_stats.txt
+        </pre>
+
+        <h3>Step 4.4: Generate Additional Variant Metrics</h3>
+        <pre>
+# Site frequency spectrum
+bcftools query -f '%CHROM\t%POS\t%AF\n' results/variants/filtered.vcf.gz > qc/variants/allele_frequencies.txt
+
+# Transition/Transversion ratio per sample
+bcftools stats -s - results/variants/filtered.vcf.gz | \
+    grep "TSTV" > qc/variants/tstv_ratio.txt
+
+# Missing data per sample
+bcftools stats -s - results/variants/filtered.vcf.gz | \
+    grep "PSC" > qc/variants/per_sample_counts.txt
+        </pre>
+    </div>
+
+    <div class="checkpoint">
+        <div class="checkpoint-header">
+            <span class="checkpoint-badge">QC CHECKPOINT 3</span>
+            <strong>Variant Quality Report</strong>
+        </div>
+        <h4>Generate MultiQC Report</h4>
+        <pre>
+# Generate QC3 report
+multiqc qc/variants \
+    -o reports/qc3_variants \
+    -n multiqc_variants.html \
+    -c multiqc_config.yaml \
+    --title "QC3: Variant Quality Assessment"
+        </pre>
+
+        <h4>What to Check in the Report</h4>
+        <table class="metrics-table">
+            <tr>
+                <th>Metric</th>
+                <th>Expected</th>
+                <th>Action if Failed</th>
+            </tr>
+            <tr>
+                <td>Total variants (raw)</td>
+                <td>~1-5 million for 350Mb genome at 15X</td>
+                <td>Check calling parameters</td>
+            </tr>
+            <tr>
+                <td>SNPs retained after filtering</td>
+                <td>&gt; 70% of raw SNPs</td>
+                <td>Filters may be too strict</td>
+            </tr>
+            <tr>
+                <td>Ti/Tv ratio</td>
+                <td>~2.0-2.1 (coding), ~2.5 (genome-wide)</td>
+                <td>Low Ti/Tv indicates false positives</td>
+            </tr>
+            <tr>
+                <td>Per-sample heterozygosity</td>
+                <td>Consistent across samples</td>
+                <td>Outliers may indicate contamination</td>
+            </tr>
+            <tr>
+                <td>Missing rate per sample</td>
+                <td>&lt; 5%</td>
+                <td>Low coverage samples</td>
+            </tr>
+            <tr>
+                <td>Quality score distribution</td>
+                <td>Peak at high quality values</td>
+                <td>Adjust quality threshold</td>
+            </tr>
+        </table>
+
+        <h4>Create Custom Summary Plots</h4>
+        <pre>
+# R script for additional variant QC plots
+Rscript -e '
+library(ggplot2)
+
+# Read allele frequency data
+af <- read.table("qc/variants/allele_frequencies.txt", col.names=c("chr","pos","af"))
+
+# Site frequency spectrum
+pdf("reports/qc3_variants/sfs_plot.pdf", width=8, height=5)
+ggplot(af, aes(x=af)) +
+  geom_histogram(bins=50, fill="#3498db", color="white") +
+  labs(title="Site Frequency Spectrum", x="Allele Frequency", y="Count") +
+  theme_minimal()
+dev.off()
+'
+        </pre>
+
+        <h4>Decision Point</h4>
+        <div class="warning">
+            <p><strong>Warning signs:</strong></p>
+            <ul>
+                <li>Ti/Tv ratio &lt; 1.8 suggests many false positive calls</li>
+                <li>Samples with &gt; 20% missing genotypes should be excluded</li>
+                <li>Very few variants after filtering (&lt; 100K) - relax filters</li>
+            </ul>
+        </div>
+    </div>
+
+    <h2 id="phase6">6. Phase 6-7: Sample QC and Population Structure</h2>
+    <div class="phase">
+        <h3>Objective</h3>
+        <p>Apply GWAS-specific quality filters and assess population structure.</p>
+
+        <h3>Step 6.1: Convert to PLINK Format</h3>
+        <pre>
+plink2 --vcf results/variants/filtered.vcf.gz \
+    --make-bed \
+    --out results/plink/variants \
+    --allow-extra-chr \
+    --set-missing-var-ids @:#
+        </pre>
+
+        <h3>Step 6.2: Variant QC</h3>
+        <pre>
+# Apply GWAS QC filters
+plink2 --bfile results/plink/variants \
+    --maf 0.05 \
+    --geno 0.1 \
+    --hwe 1e-6 \
+    --make-bed \
+    --out results/plink/variants_qc \
+    --allow-extra-chr
+
+# Save QC summary
+plink2 --bfile results/plink/variants_qc \
+    --freq \
+    --out qc/gwas/allele_freq \
+    --allow-extra-chr
+
+plink2 --bfile results/plink/variants_qc \
+    --hardy \
+    --out qc/gwas/hwe \
+    --allow-extra-chr
+        </pre>
+
+        <h3>Step 6.3: Sample QC</h3>
+        <pre>
+# Calculate sample statistics
+plink2 --bfile results/plink/variants_qc \
+    --missing \
+    --out qc/gwas/missing \
+    --allow-extra-chr
+
+plink2 --bfile results/plink/variants_qc \
+    --het \
+    --out qc/gwas/het \
+    --allow-extra-chr
+
+# Relatedness check
+plink2 --bfile results/plink/variants_qc \
+    --make-king-table \
+    --king-table-filter 0.0442 \
+    --out qc/gwas/relatedness \
+    --allow-extra-chr
+        </pre>
+
+        <h3>Step 6.4: PCA for Population Structure</h3>
+        <pre>
+# LD pruning
+plink2 --bfile results/plink/variants_qc \
+    --indep-pairwise 50 5 0.2 \
+    --out qc/gwas/ld_prune \
+    --allow-extra-chr
+
+# Calculate PCA
+plink2 --bfile results/plink/variants_qc \
+    --extract qc/gwas/ld_prune.prune.in \
+    --pca 10 \
+    --out results/pca/pca \
+    --allow-extra-chr
+        </pre>
+    </div>
+
+    <div class="checkpoint">
+        <div class="checkpoint-header">
+            <span class="checkpoint-badge">QC CHECKPOINT 4</span>
+            <strong>GWAS-Ready Data Report</strong>
+        </div>
+
+        <h4>Generate Custom MultiQC Module for PLINK</h4>
+        <p>PLINK output isn't natively supported by MultiQC, so we create custom content:</p>
+        <pre>
+# Create custom MultiQC data files
+mkdir -p qc/gwas/multiqc_custom
+
+# Sample missingness for MultiQC
+echo -e "Sample\tF_MISS\tStatus" > qc/gwas/multiqc_custom/sample_missingness.txt
+awk 'NR>1 {status="PASS"; if($5>0.1) status="FAIL"; print $2"\t"$5"\t"status}' \
+    qc/gwas/missing.smiss >> qc/gwas/multiqc_custom/sample_missingness.txt
+
+# Heterozygosity for MultiQC
+echo -e "Sample\tO_HET\tE_HET\tF\tStatus" > qc/gwas/multiqc_custom/heterozygosity.txt
+# Calculate mean and SD of F coefficient
+mean_f=$(awk 'NR>1 {sum+=$6; n++} END {print sum/n}' qc/gwas/het.het)
+sd_f=$(awk -v mean=$mean_f 'NR>1 {sum+=($6-mean)^2; n++} END {print sqrt(sum/n)}' qc/gwas/het.het)
+awk -v mean=$mean_f -v sd=$sd_f 'NR>1 {
+    status="PASS";
+    if($6 < mean-3*sd || $6 > mean+3*sd) status="FAIL";
+    print $2"\t"$4"\t"$5"\t"$6"\t"status
+}' qc/gwas/het.het >> qc/gwas/multiqc_custom/heterozygosity.txt
+
+# Summary statistics
+cat > qc/gwas/multiqc_custom/gwas_summary_mqc.yaml << 'EOF'
+id: 'gwas_summary'
+section_name: 'GWAS QC Summary'
+plot_type: 'table'
+pconfig:
+    id: 'gwas_summary_table'
+    title: 'GWAS Quality Control Summary'
+data:
+EOF
+
+# Add dynamic content
+total_variants=$(wc -l < results/plink/variants_qc.bim)
+total_samples=$(wc -l < results/plink/variants_qc.fam)
+samples_fail_miss=$(awk '$3=="FAIL"' qc/gwas/multiqc_custom/sample_missingness.txt | wc -l)
+samples_fail_het=$(awk '$5=="FAIL"' qc/gwas/multiqc_custom/heterozygosity.txt | wc -l)
+
+cat >> qc/gwas/multiqc_custom/gwas_summary_mqc.yaml << EOF
+    Total_Variants: $total_variants
+    Total_Samples: $total_samples
+    Samples_Fail_Missingness: $samples_fail_miss
+    Samples_Fail_Heterozygosity: $samples_fail_het
+EOF
+        </pre>
+
+        <h4>Generate MultiQC Report</h4>
+        <pre>
+# Generate QC4 report
+multiqc qc/gwas \
+    -o reports/qc4_gwas \
+    -n multiqc_gwas.html \
+    -c multiqc_config.yaml \
+    --title "QC4: GWAS-Ready Data Assessment"
+        </pre>
+
+        <h4>Generate PCA Plot</h4>
+        <pre>
+# R script for PCA visualization
+Rscript -e '
+library(ggplot2)
+
+# Read PCA results
+eigenvec <- read.table("results/pca/pca.eigenvec", header=TRUE)
+eigenval <- read.table("results/pca/pca.eigenval", header=FALSE)$V1
+
+# Variance explained
+var_exp <- eigenval / sum(eigenval) * 100
+
+# Plot PC1 vs PC2
+pdf("reports/qc4_gwas/pca_plot.pdf", width=10, height=8)
+ggplot(eigenvec, aes(x=PC1, y=PC2)) +
+  geom_point(size=3, alpha=0.7, color="#3498db") +
+  labs(title="Principal Component Analysis",
+       x=paste0("PC1 (", round(var_exp[1],1), "%)"),
+       y=paste0("PC2 (", round(var_exp[2],1), "%)")) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust=0.5, size=14, face="bold"))
+dev.off()
+
+# Plot heterozygosity vs missingness
+het <- read.table("qc/gwas/het.het", header=TRUE)
+miss <- read.table("qc/gwas/missing.smiss", header=TRUE)
+merged <- merge(het, miss, by="IID")
+
+pdf("reports/qc4_gwas/het_vs_miss.pdf", width=8, height=6)
+ggplot(merged, aes(x=F_MISS, y=F)) +
+  geom_point(size=2, alpha=0.7) +
+  geom_hline(yintercept=c(mean(merged$F)-3*sd(merged$F), mean(merged$F)+3*sd(merged$F)),
+             linetype="dashed", color="red") +
+  geom_vline(xintercept=0.1, linetype="dashed", color="red") +
+  labs(title="Sample QC: Heterozygosity vs Missingness",
+       x="Missing Rate", y="F (Inbreeding Coefficient)") +
+  theme_minimal()
+dev.off()
+'
+        </pre>
+
+        <h4>What to Check</h4>
+        <table class="metrics-table">
+            <tr>
+                <th>Metric</th>
+                <th>Threshold</th>
+                <th>Action</th>
+            </tr>
+            <tr>
+                <td>Sample missingness</td>
+                <td>&lt; 10%</td>
+                <td>Remove samples exceeding threshold</td>
+            </tr>
+            <tr>
+                <td>Heterozygosity (F coefficient)</td>
+                <td>Within 3 SD of mean</td>
+                <td>Remove outliers (contamination/inbreeding)</td>
+            </tr>
+            <tr>
+                <td>Relatedness (KING)</td>
+                <td>Kinship &lt; 0.0442 (3rd degree)</td>
+                <td>Remove one of related pairs</td>
+            </tr>
+            <tr>
+                <td>PCA outliers</td>
+                <td>No extreme outliers</td>
+                <td>Investigate, may indicate different ancestry</td>
+            </tr>
+            <tr>
+                <td>HWE (controls only)</td>
+                <td>p &gt; 1e-6</td>
+                <td>Already filtered in variant QC</td>
+            </tr>
+        </table>
+
+        <h4>Final Sample Exclusion</h4>
+        <pre>
+# Create final exclude list
+cat > qc/gwas/samples_to_exclude.txt << EOF
+# Samples failing QC thresholds
+EOF
+
+# Add samples failing missingness
+awk '$3=="FAIL" {print $1}' qc/gwas/multiqc_custom/sample_missingness.txt \
+    >> qc/gwas/samples_to_exclude.txt
+
+# Add samples failing heterozygosity
+awk '$5=="FAIL" {print $1}' qc/gwas/multiqc_custom/heterozygosity.txt \
+    >> qc/gwas/samples_to_exclude.txt
+
+# Remove excluded samples
+plink2 --bfile results/plink/variants_qc \
+    --remove qc/gwas/samples_to_exclude.txt \
+    --make-bed \
+    --out results/plink/variants_gwas_ready \
+    --allow-extra-chr
+        </pre>
+    </div>
+
+    <h2 id="phase8">7. Phase 8-9: Association Analysis</h2>
+    <div class="phase">
+        <h3>GWAS Association Testing</h3>
+        <pre>
+# Prepare phenotype file (FID, IID, PHENO)
+# PLINK expects: 1=control, 2=case
+
+# Run association with covariates
+plink2 --bfile results/plink/variants_gwas_ready \
+    --pheno phenotypes.txt \
+    --covar results/pca/pca.eigenvec \
+    --covar-col-nums 3-7 \
+    --glm firth-fallback hide-covar \
+    --out results/gwas/association \
+    --allow-extra-chr
+        </pre>
+
+        <h3>Generate Results Visualizations</h3>
+        <pre>
+Rscript scripts/plot_gwas_results.R
+        </pre>
+    </div>
+
+    <h2 id="qc-summary">8. QC Decision Points Summary</h2>
+    <div class="phase">
+        <h3>Progressive QC Strategy</h3>
+        <p>Each checkpoint builds on the previous one. <span class="fail">STOP</span> the pipeline if critical failures occur.</p>
+
+        <table>
+            <tr>
+                <th>Checkpoint</th>
+                <th>Critical Failures (STOP)</th>
+                <th>Warnings (Investigate)</th>
+                <th>Continue if</th>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC1</span></td>
+                <td>
+                    <ul>
+                        <li>&gt;20% samples with &lt;80% pass rate</li>
+                        <li>Systematic adapter contamination</li>
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        <li>High duplication in FastQC</li>
+                        <li>Unexpected GC content</li>
+                    </ul>
+                </td>
+                <td>Most samples have Q20+ and &gt;90% pass rate</td>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC2</span></td>
+                <td>
+                    <ul>
+                        <li>Mapping rate &lt;80%</li>
+                        <li>Mean coverage &lt;5X</li>
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        <li>Duplication &gt;30%</li>
+                        <li>Some samples &lt;10X coverage</li>
+                    </ul>
+                </td>
+                <td>Most samples have &gt;95% mapping, target coverage</td>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC3</span></td>
+                <td>
+                    <ul>
+                        <li>Ti/Tv &lt;1.5</li>
+                        <li>&lt;10K variants after filtering</li>
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        <li>Per-sample missing &gt;10%</li>
+                        <li>Ti/Tv &lt;2.0</li>
+                    </ul>
+                </td>
+                <td>Ti/Tv ~2.0+, sufficient variants for GWAS</td>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC4</span></td>
+                <td>
+                    <ul>
+                        <li>&gt;30% samples fail QC</li>
+                        <li>Strong population structure (confounding)</li>
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        <li>Related individuals</li>
+                        <li>PCA outliers</li>
+                    </ul>
+                </td>
+                <td>Sufficient samples after QC, structure controlled by PCs</td>
+            </tr>
+        </table>
+
+        <h3>Final Checklist Before GWAS</h3>
+        <div class="tip">
+            <p><strong>Verify the following before running association:</strong></p>
+            <ol>
+                <li>All 4 MultiQC reports generated and reviewed</li>
+                <li>Samples passing all QC: <code>wc -l results/plink/variants_gwas_ready.fam</code></li>
+                <li>Variants passing all QC: <code>wc -l results/plink/variants_gwas_ready.bim</code></li>
+                <li>Phenotype file matches sample IDs</li>
+                <li>PCA covariates file ready</li>
+                <li>Balanced case/control ratio (or aware of imbalance)</li>
+            </ol>
+        </div>
+    </div>
+
+    <h2 id="software">9. Software Summary</h2>
+    <table>
+        <tr>
+            <th>Tool</th>
+            <th>Version</th>
+            <th>Purpose</th>
+            <th>QC Checkpoint</th>
+        </tr>
+        <tr>
+            <td>MultiQC</td>
+            <td>1.21+</td>
+            <td>Aggregate QC reports</td>
+            <td>All</td>
+        </tr>
+        <tr>
+            <td>FastQC</td>
+            <td>0.12+</td>
+            <td>Read quality assessment</td>
+            <td>QC1</td>
+        </tr>
+        <tr>
+            <td>fastp</td>
+            <td>0.23+</td>
+            <td>Read trimming and filtering</td>
+            <td>QC1</td>
+        </tr>
+        <tr>
+            <td>BWA-MEM2</td>
+            <td>2.2+</td>
+            <td>Read alignment</td>
+            <td>QC2</td>
+        </tr>
+        <tr>
+            <td>samtools</td>
+            <td>1.19+</td>
+            <td>BAM processing, stats</td>
+            <td>QC2</td>
+        </tr>
+        <tr>
+            <td>FreeBayes</td>
+            <td>1.3+</td>
+            <td>Variant calling</td>
+            <td>QC3</td>
+        </tr>
+        <tr>
+            <td>bcftools</td>
+            <td>1.19+</td>
+            <td>Variant filtering, stats</td>
+            <td>QC3</td>
+        </tr>
+        <tr>
+            <td>PLINK 2.0</td>
+            <td>2.00a5+</td>
+            <td>GWAS QC, association</td>
+            <td>QC4</td>
+        </tr>
+        <tr>
+            <td>R</td>
+            <td>4.3+</td>
+            <td>Custom QC plots</td>
+            <td>QC3, QC4</td>
+        </tr>
+    </table>
+
+    <h2 id="references">10. References</h2>
+    <ol>
+        <li>Ewels P, et al. (2016). <a href="https://academic.oup.com/bioinformatics/article/32/19/3047/2196507">MultiQC: summarize analysis results for multiple tools and samples in a single report.</a> Bioinformatics 32(19):3047-3048.</li>
+        <li>MultiQC Documentation. <a href="https://multiqc.info/docs/">https://multiqc.info/docs/</a></li>
+        <li>Marees AT, et al. (2018). <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6001694/">A tutorial on conducting genome-wide association studies.</a> Int J Methods Psychiatr Res.</li>
+        <li>Anderson CA, et al. (2010). <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3066182/">Data quality control in genetic case-control association studies.</a> Nat Protoc.</li>
+        <li>Danecek P, et al. (2021). <a href="https://academic.oup.com/gigascience/article/10/2/giab008/6137722">Twelve years of SAMtools and BCFtools.</a> GigaScience.</li>
+    </ol>
+
+    <hr>
+    <p><em>Generated on 2026-02-26 | Project: Annas_GWAS | MultiQC Integration Version</em></p>
+</body>
+</html>

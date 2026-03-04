@@ -1,0 +1,46 @@
+# =============================================================================
+# GWAS Pipeline Configuration
+# =============================================================================
+# Edit these paths and parameters before running the pipeline
+
+# -----------------------------------------------------------------------------
+# Input Files
+# -----------------------------------------------------------------------------
+
+# Directory containing paired-end FASTQ files
+# Files should be named: {sample}_R1.fastq.gz and {sample}_R2.fastq.gz
+fastq_dir: "data/fastq"
+
+# Reference genome (FASTA format)
+reference: "data/reference/genome.fasta"
+
+# Phenotype file (tab-separated: sample_id, phenotype)
+# Phenotype should be coded as 1 (control) and 2 (case) for PLINK
+phenotype_file: "data/phenotypes.txt"
+
+# -----------------------------------------------------------------------------
+# Variant QC Thresholds
+# -----------------------------------------------------------------------------
+
+# Minor allele frequency threshold (exclude variants below this)
+maf_threshold: 0.05
+
+# Genotype missingness threshold (exclude variants missing in more than this fraction)
+geno_threshold: 0.1
+
+# Hardy-Weinberg equilibrium p-value threshold
+hwe_threshold: 1e-6
+
+# -----------------------------------------------------------------------------
+# Sample QC Thresholds
+# -----------------------------------------------------------------------------
+
+# Sample missingness threshold (exclude samples missing more than this fraction)
+mind_threshold: 0.1
+
+# -----------------------------------------------------------------------------
+# Computational Resources
+# -----------------------------------------------------------------------------
+
+# Default threads for rules (can be overridden per rule)
+threads: 8

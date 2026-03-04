@@ -1,0 +1,128 @@
+# =============================================================================
+# MultiQC Configuration for GWAS Pipeline
+# =============================================================================
+# Place this file in your project directory or specify with -c flag
+
+title: "GWAS Pipeline QC Report"
+subtitle: "Annas_GWAS Project"
+
+# Report header information
+report_header_info:
+    - Project: "Annas_GWAS"
+    - Organism: "Custom (350 Mbp genome)"
+    - Coverage Target: "15X"
+    - Samples: "96"
+
+# Custom logo (optional - uncomment and set path)
+# custom_logo: "path/to/logo.png"
+
+# Module execution order
+module_order:
+    - fastqc:
+        name: "FastQC (Raw)"
+        path_filters:
+            - "*_fastqc.zip"
+    - fastp:
+        name: "fastp (Trimming)"
+    - samtools:
+        name: "SAMtools (Alignment)"
+    - picard:
+        name: "Picard (Duplicates)"
+    - bcftools:
+        name: "bcftools (Variants)"
+
+# Sample name cleaning patterns
+extra_fn_clean_exts:
+    - ".dedup"
+    - ".sorted"
+    - ".trimmed"
+    - ".marked"
+    - "_R1"
+    - "_R2"
+    - ".bam"
+    - ".fastq"
+    - ".gz"
+
+# Clean sample names
+fn_clean_sample_names: true
+
+# Table columns to show/hide
+table_columns_visible:
+    FastQC:
+        percent_duplicates: true
+        percent_gc: true
+        avg_sequence_length: true
+        total_sequences: true
+        percent_fails: true
+    Samtools:
+        mapped_passed: true
+        mapped_passed_pct: true
+        error_rate: true
+        raw_total_sequences: true
+    fastp:
+        pct_surviving: true
+        pct_adapter: true
+        after_filtering_gc_content: true
+    bcftools:
+        number_of_SNPs: true
+        number_of_indels: true
+        tstv: true
+
+# General statistics table columns
+table_columns_placement:
+    FastQC:
+        total_sequences: 100
+        percent_gc: 200
+        percent_duplicates: 300
+    Samtools:
+        mapped_passed_pct: 400
+        error_rate: 500
+
+# Export raw data
+export_plots: true
+data_format: "tsv"
+
+# Plot configuration
+plots_force_interactive: false
+plots_flat_numseries: 200
+
+# Number of samples to show in plots before switching to flat
+max_table_rows: 500
+
+# Custom content search patterns for PLINK output
+sp:
+    plink_het:
+        fn: "*.het"
+        contents: "FID"
+    plink_miss:
+        fn: "*.smiss"
+        contents: "FID"
+
+# Report sections configuration
+section_comments:
+    fastqc: "Quality metrics for raw sequencing reads"
+    fastp: "Read trimming and filtering statistics"
+    samtools: "Alignment statistics including mapping rates and coverage"
+    bcftools: "Variant calling statistics including Ti/Tv ratios"
+
+# Ignore certain files
+fn_ignore_files:
+    - "*.bai"
+    - "*.tbi"
+    - "*.fai"
+
+# Ignore certain directories
+fn_ignore_dirs:
+    - ".snakemake"
+    - "__pycache__"
+
+# Log file to show in report
+log_filesize_limit: 10000000
+
+# Show analysis paths in report
+show_analysis_paths: false
+show_analysis_time: true
+
+# Decimalisation
+decimalPoint_format: "."
+thousandsSep_format: ","

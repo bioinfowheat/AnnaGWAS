@@ -1,0 +1,13 @@
+name: plotting
+channels:
+  - conda-forge
+  - r
+  - defaults
+dependencies:
+  - r-base=4.3
+  - r-ggplot2=3.4
+  - r-dplyr=1.1
+  - r-tidyr=1.3
+  - r-qqman=0.1.9
+  - r-ggrepel=0.9
+  - r-rcolorbrewer=1.1
