@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GWAS Pipeline v2 — P33459 Megera_2</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; max-width: 1200px; }
+        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 40px; border-left: 4px solid #3498db; padding-left: 15px; }
+        h3 { color: #7f8c8d; margin-top: 25px; }
+        h4 { color: #95a5a6; margin-top: 20px; }
+        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #3498db; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .phase { background-color: #e8f6f3; padding: 20px; border-left: 4px solid #27ae60; margin: 20px 0; border-radius: 5px; }
+        .warning { background-color: #fdf2e9; padding: 15px; border-left: 4px solid #e74c3c; margin: 20px 0; }
+        .tip { background-color: #fef9e7; padding: 15px; border-left: 4px solid #f39c12; margin: 20px 0; }
+        .multiqc { background-color: #e8daef; padding: 20px; border-left: 4px solid #9b59b6; margin: 20px 0; border-radius: 5px; }
+        .multiqc h3 { color: #8e44ad; margin-top: 0; }
+        .checkpoint { background-color: #d5f5e3; padding: 15px; border: 2px dashed #27ae60; margin: 20px 0; border-radius: 8px; }
+        .checkpoint-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .checkpoint-badge { background-color: #27ae60; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9em; }
+        .snakemake { background-color: #dcedc8; padding: 20px; border-left: 4px solid #689f38; margin: 20px 0; border-radius: 5px; }
+        .snakemake h3 { color: #558b2f; margin-top: 0; }
+        .data-box { background-color: #e3f2fd; padding: 20px; border-left: 4px solid #1976d2; margin: 20px 0; border-radius: 5px; }
+        code { background-color: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; }
+        pre { background-color: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .toc { background-color: #f8f9fa; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .toc ul { list-style-type: none; padding-left: 20px; }
+        .toc li { margin: 8px 0; }
+        a { color: #3498db; }
+        .metrics-table { font-size: 0.9em; }
+        .metrics-table th { background-color: #9b59b6; }
+        .change { background-color: #fff3e0; padding: 3px 8px; border-radius: 3px; font-weight: bold; color: #e65100; }
+    </style>
+</head>
+<body>
+    <h1>GWAS Pipeline v2 — P33459 Megera_2</h1>
+    <p><em>Snakemake workflow: FASTQ &rarr; Variant Calling &rarr; GWAS Association</em></p>
+    <p><strong>Project:</strong> P33459 / K.Gotthard_24_01 (Megera_2) &nbsp;|&nbsp;
+       <strong>Organism:</strong> <em>Pararge aegeria</em> (ilParAegt1.1) &nbsp;|&nbsp;
+       <strong>Generated:</strong> 2026-03-04</p>
+
+    <!-- ================================================================ -->
+    <!-- DATA OVERVIEW -->
+    <!-- ================================================================ -->
+    <h2 id="data">1. Data Overview</h2>
+    <div class="data-box">
+        <h3>Sequencing Summary</h3>
+        <table>
+            <tr><th>Parameter</th><th>Value</th></tr>
+            <tr><td>NGI Project</td><td>P33459 / K.Gotthard_24_01</td></tr>
+            <tr><td>Application</td><td>Target re-sequencing (paired-end)</td></tr>
+            <tr><td>Platform</td><td>NovaSeqXPlus, 2&times;151 bp, 25B flowcell</td></tr>
+            <tr><td>Samples</td><td>94 total (5 groups: K, L, F, Ku, G)</td></tr>
+            <tr><td>Read depth</td><td>12.8M &ndash; 60.0M reads/sample</td></tr>
+            <tr><td>Q30</td><td>&gt; 90% all samples</td></tr>
+            <tr><td>Library prep</td><td>Illumina DNA, avg. fragment size 600 bp</td></tr>
+            <tr><td>Flowcell</td><td>B22LM5YLT4, Lane 6</td></tr>
+        </table>
+
+        <h3>Sample Groups</h3>
+        <table>
+            <tr><th>Group</th><th>Prefix</th><th>Count</th><th>NGI IDs</th></tr>
+            <tr><td>K</td><td>K1&ndash;K25</td><td>24</td><td>P33459_101 &ndash; P33459_124</td></tr>
+            <tr><td>L</td><td>L1&ndash;L21</td><td>20</td><td>P33459_125 &ndash; P33459_144</td></tr>
+            <tr><td>F</td><td>F1&ndash;F6</td><td>6</td><td>P33459_145 &ndash; P33459_150</td></tr>
+            <tr><td>Ku</td><td>Ku1&ndash;Ku18</td><td>18</td><td>P33459_151 &ndash; P33459_168</td></tr>
+            <tr><td>G</td><td>G1&ndash;G26</td><td>26</td><td>P33459_169 &ndash; P33459_194</td></tr>
+        </table>
+
+        <h3>Reference Genome</h3>
+        <table>
+            <tr><th>Parameter</th><th>Value</th></tr>
+            <tr><td>Species</td><td><em>Pararge aegeria</em> (Speckled Wood butterfly)</td></tr>
+            <tr><td>Assembly</td><td>ilParAegt1.1 (GCF_905163445.1)</td></tr>
+            <tr><td>Source</td><td><a href="https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/905/163/445/GCF_905163445.1_ilParAegt1.1/">NCBI FTP</a></td></tr>
+            <tr><td>File used</td><td><code>GCF_905163445.1_ilParAegt1.1_genomic.<span class="change">edited</span>.fna</code></td></tr>
+            <tr><td>Header format</td><td>Chromosomes: 1&ndash;27, W, Z &nbsp;|&nbsp; Scaffolds: NW_* accessions</td></tr>
+            <tr><td>Total size</td><td>516,571,003 bp (70 sequences)</td></tr>
+            <tr><td>N50</td><td>19,375,358 bp</td></tr>
+            <tr><td>GC%</td><td>35.99%</td></tr>
+            <tr><td>QUAST validation</td><td>Original vs edited &mdash; all metrics identical</td></tr>
+        </table>
+
+        <h3>FASTQ File Naming Convention</h3>
+        <p>NGI delivers files as:</p>
+        <pre>
+P33459_{ngi_num}/02-FASTQ/20250124_LH00202_0188_B22LM5YLT4/
+    P33459_{ngi_num}_S{n}_L006_R1_001.fastq.gz
+    P33459_{ngi_num}_S{n}_L006_R2_001.fastq.gz</pre>
+        <p>The pipeline uses a <code>samples.tsv</code> file to map sample names to their R1/R2 file paths.</p>
+
+        <h3>Test Run: 2 Samples</h3>
+        <table>
+            <tr><th>NGI ID</th><th>User ID</th><th>Group</th><th>Mreads</th><th>Rationale</th></tr>
+            <tr><td>P33459_101</td><td>K1</td><td>K</td><td>58.8M</td><td>High-depth sample</td></tr>
+            <tr><td>P33459_125</td><td>L1</td><td>L</td><td>29.6M</td><td>Lower-depth sample, different group</td></tr>
+        </table>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- WORKFLOW OVERVIEW -->
+    <!-- ================================================================ -->
+    <h2 id="overview">2. Workflow Overview</h2>
+
+    <div class="snakemake">
+        <h3>Snakemake + micromamba</h3>
+        <p>The entire pipeline is managed by <strong>Snakemake</strong> with per-rule conda environments resolved by <strong>micromamba</strong>.</p>
+        <pre>
+# Dry run
+snakemake -n
+
+# Execute (2 test samples, local Mac — 22 of 28 cores)
+snakemake --cores 22 --use-conda --conda-frontend micromamba
+
+# Scale to all 94 samples: edit samples.tsv, then re-run
+snakemake --cores 22 --use-conda --conda-frontend micromamba</pre>
+    </div>
+
+    <div class="multiqc">
+        <h3>MultiQC Quality Control Strategy</h3>
+        <p><strong>4 QC checkpoints</strong> generate MultiQC reports at critical stages:</p>
+        <table>
+            <tr>
+                <th>Checkpoint</th>
+                <th>Stage</th>
+                <th>Tools Aggregated</th>
+                <th>Key Metrics</th>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC1</span></td>
+                <td>Read Quality</td>
+                <td>FastQC, fastp</td>
+                <td>Read quality, adapter content, duplication</td>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC2</span></td>
+                <td>Alignment</td>
+                <td>samtools stats/flagstat/idxstats</td>
+                <td>Mapping rate, coverage, duplicates</td>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC3</span></td>
+                <td>Variants</td>
+                <td>bcftools stats</td>
+                <td>Variant counts, Ti/Tv ratio, quality distribution</td>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC4</span></td>
+                <td>GWAS Ready</td>
+                <td>PLINK 2.0, custom scripts</td>
+                <td>Sample QC, HWE, missingness, PCA</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Workflow Diagram -->
+    <div style="margin: 30px 0;">
+        <svg viewBox="0 0 1000 1150" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+            <rect width="1000" height="1150" fill="#f8f9fa"/>
+            <text x="500" y="35" text-anchor="middle" font-size="20" font-weight="bold" fill="#2c3e50">P33459 GWAS Pipeline (Snakemake + micromamba, 22 cores)</text>
+
+            <!-- Arrow marker -->
+            <defs>
+                <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#2c3e50"/>
+                </marker>
+            </defs>
+
+            <!-- Input -->
+            <rect x="300" y="55" width="400" height="55" rx="8" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+            <text x="500" y="77" text-anchor="middle" font-size="13" font-weight="bold" fill="white">INPUT: 94 samples (2 for test run)</text>
+            <text x="500" y="97" text-anchor="middle" font-size="10" fill="#d6eaf8">P. aegeria ilParAegt1.1 edited genome | samples.tsv | phenotypes.txt</text>
+
+            <path d="M500 110 L500 135" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Phase 1 -->
+            <rect x="300" y="140" width="280" height="70" rx="8" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+            <text x="440" y="165" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 1: Read QC &amp; Trimming</text>
+            <text x="440" y="185" text-anchor="middle" font-size="11" fill="white">FastQC | fastp</text>
+            <text x="440" y="200" text-anchor="middle" font-size="9" fill="#ffeaa7">Adapter removal, quality filtering (Q20, len&ge;50)</text>
+
+            <rect x="620" y="145" width="160" height="60" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+            <text x="700" y="170" text-anchor="middle" font-size="12" font-weight="bold" fill="white">QC CHECKPOINT 1</text>
+            <text x="700" y="187" text-anchor="middle" font-size="10" fill="white">multiqc_reads.html</text>
+            <path d="M580 175 L618 175" stroke="#9b59b6" stroke-width="2" stroke-dasharray="5,3"/>
+
+            <path d="M440 210 L440 240" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Phase 2-3 -->
+            <rect x="300" y="245" width="280" height="90" rx="8" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+            <text x="440" y="270" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 2-3: Alignment</text>
+            <text x="440" y="290" text-anchor="middle" font-size="11" fill="white">BWA-MEM2 | samtools</text>
+            <text x="440" y="307" text-anchor="middle" font-size="9" fill="#ffeaa7">Align &rarr; sort &rarr; mark duplicates &rarr; index</text>
+            <text x="440" y="322" text-anchor="middle" font-size="9" fill="#ffeaa7">Generate stats, flagstat, idxstats</text>
+
+            <rect x="620" y="255" width="160" height="60" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+            <text x="700" y="280" text-anchor="middle" font-size="12" font-weight="bold" fill="white">QC CHECKPOINT 2</text>
+            <text x="700" y="297" text-anchor="middle" font-size="10" fill="white">multiqc_alignment.html</text>
+            <path d="M580 285 L618 285" stroke="#9b59b6" stroke-width="2" stroke-dasharray="5,3"/>
+
+            <path d="M440 335 L440 365" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Phase 4-5 -->
+            <rect x="300" y="370" width="280" height="90" rx="8" fill="#27ae60" stroke="#1e8449" stroke-width="2"/>
+            <text x="440" y="395" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 4-5: Variant Calling</text>
+            <text x="440" y="415" text-anchor="middle" font-size="11" fill="white">bcftools mpileup/call</text>
+            <text x="440" y="432" text-anchor="middle" font-size="9" fill="#a9dfbf">Per-chromosome calling across all samples</text>
+            <text x="440" y="447" text-anchor="middle" font-size="9" fill="#a9dfbf">Filter: QUAL&gt;20, biallelic SNPs, normalize</text>
+
+            <rect x="620" y="380" width="160" height="60" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+            <text x="700" y="405" text-anchor="middle" font-size="12" font-weight="bold" fill="white">QC CHECKPOINT 3</text>
+            <text x="700" y="422" text-anchor="middle" font-size="10" fill="white">multiqc_variants.html</text>
+            <path d="M580 410 L618 410" stroke="#9b59b6" stroke-width="2" stroke-dasharray="5,3"/>
+
+            <path d="M440 460 L440 490" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Phase 6-7 -->
+            <rect x="300" y="495" width="280" height="90" rx="8" fill="#2980b9" stroke="#1f618d" stroke-width="2"/>
+            <text x="440" y="520" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 6-7: Sample QC + PCA</text>
+            <text x="440" y="540" text-anchor="middle" font-size="11" fill="white">PLINK 2.0</text>
+            <text x="440" y="557" text-anchor="middle" font-size="9" fill="#aed6f1">MAF &ge;0.05 | geno &le;0.1 | HWE p&gt;1e-6</text>
+            <text x="440" y="572" text-anchor="middle" font-size="9" fill="#aed6f1">Missingness, heterozygosity, relatedness, PCA</text>
+
+            <rect x="620" y="505" width="160" height="60" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+            <text x="700" y="530" text-anchor="middle" font-size="12" font-weight="bold" fill="white">QC CHECKPOINT 4</text>
+            <text x="700" y="547" text-anchor="middle" font-size="10" fill="white">multiqc_gwas.html</text>
+            <path d="M580 535 L618 535" stroke="#9b59b6" stroke-width="2" stroke-dasharray="5,3"/>
+
+            <path d="M440 585 L440 615" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Phase 8 -->
+            <rect x="300" y="620" width="280" height="70" rx="8" fill="#c0392b" stroke="#922b21" stroke-width="2"/>
+            <text x="440" y="645" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 8: GWAS Association</text>
+            <text x="440" y="665" text-anchor="middle" font-size="11" fill="white">PLINK 2.0 --glm firth-fallback</text>
+            <text x="440" y="680" text-anchor="middle" font-size="9" fill="#f5b7b1">Logistic regression + PC1-5 covariates</text>
+
+            <path d="M440 690 L440 720" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Phase 9 -->
+            <rect x="300" y="725" width="280" height="70" rx="8" fill="#1abc9c" stroke="#16a085" stroke-width="2"/>
+            <text x="440" y="750" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 9: Visualization</text>
+            <text x="440" y="770" text-anchor="middle" font-size="11" fill="white">R (qqman, ggplot2)</text>
+            <text x="440" y="785" text-anchor="middle" font-size="9" fill="#a3e4d7">Manhattan plot, QQ plot, PCA plot</text>
+
+            <path d="M440 795 L440 825" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Output -->
+            <rect x="350" y="830" width="180" height="45" rx="8" fill="#2c3e50" stroke="#1a252f" stroke-width="2"/>
+            <text x="440" y="855" text-anchor="middle" font-size="13" font-weight="bold" fill="white">GWAS Results</text>
+
+            <!-- Legend -->
+            <rect x="60" y="145" width="200" height="120" rx="5" fill="#fff" stroke="#ddd" stroke-width="1"/>
+            <text x="160" y="170" text-anchor="middle" font-size="12" font-weight="bold" fill="#2c3e50">Legend</text>
+            <rect x="80" y="185" width="20" height="15" fill="#9b59b6"/>
+            <text x="110" y="197" font-size="11" fill="#2c3e50">MultiQC Checkpoint</text>
+            <rect x="80" y="210" width="20" height="15" fill="#689f38"/>
+            <text x="110" y="222" font-size="11" fill="#2c3e50">Snakemake managed</text>
+            <line x1="80" y1="243" x2="100" y2="243" stroke="#9b59b6" stroke-width="2" stroke-dasharray="5,3"/>
+            <text x="110" y="246" font-size="11" fill="#2c3e50">QC data flow</text>
+        </svg>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- TABLE OF CONTENTS -->
+    <!-- ================================================================ -->
+    <h2>Table of Contents</h2>
+    <div class="toc">
+        <ul>
+            <li><a href="#data">1. Data Overview</a></li>
+            <li><a href="#overview">2. Workflow Overview</a></li>
+            <li><a href="#setup">3. Project Setup &amp; Configuration</a></li>
+            <li><a href="#phase1">4. Phase 1: Read QC + <span class="checkpoint-badge">QC1</span></a></li>
+            <li><a href="#phase2">5. Phase 2-3: Alignment + <span class="checkpoint-badge">QC2</span></a></li>
+            <li><a href="#phase4">6. Phase 4-5: Variant Calling + <span class="checkpoint-badge">QC3</span></a></li>
+            <li><a href="#phase6">7. Phase 6-7: Sample QC + <span class="checkpoint-badge">QC4</span></a></li>
+            <li><a href="#phase8">8. Phase 8-9: GWAS Association &amp; Visualization</a></li>
+            <li><a href="#qc-summary">9. QC Decision Points</a></li>
+            <li><a href="#software">10. Software Summary</a></li>
+            <li><a href="#changes">11. Changes from v1</a></li>
+        </ul>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PROJECT SETUP -->
+    <!-- ================================================================ -->
+    <h2 id="setup">3. Project Setup &amp; Configuration</h2>
+    <div class="phase">
+        <h3>Directory Structure</h3>
+        <pre>
+Annas_GWAS/
+├── Snakefile                    # Main workflow
+├── config.yaml                  # Configuration
+├── samples.tsv                  # Sample &rarr; FASTQ path mapping
+├── multiqc_config.yaml          # MultiQC report settings
+├── envs/                        # micromamba environment definitions
+│   ├── qc.yaml                  #   FastQC, fastp, MultiQC
+│   ├── align.yaml               #   BWA-MEM2, samtools
+│   ├── variant.yaml             #   bcftools, htslib, samtools
+│   ├── gwas.yaml                #   PLINK 2.0
+│   └── plotting.yaml            #   R, ggplot2, qqman
+├── scripts/
+│   ├── prepare_phenotypes.py
+│   └── plot_gwas_results.R
+├── genome/
+│   ├── GCF_905163445.1_ilParAegt1.1_genomic.edited.fna
+│   ├── GCF_905163445.1_ilParAegt1.1_genomic.gff
+│   ├── edit_fasta_headers.sh
+│   └── quast_comparison/
+└── data/
+    └── phenotypes.txt           # User-provided phenotype file</pre>
+
+        <h3>samples.tsv (2-sample test)</h3>
+        <pre>
+sample         user_id  group  r1                                               r2
+P33459_101     K1       K      /path/to/P33459_101_S1_L006_R1_001.fastq.gz      /path/to/P33459_101_S1_L006_R2_001.fastq.gz
+P33459_125     L1       L      /path/to/P33459_125_S25_L006_R1_001.fastq.gz     /path/to/P33459_125_S25_L006_R2_001.fastq.gz</pre>
+        <p>To run all 94 samples: add all rows to <code>samples.tsv</code> and re-run Snakemake.</p>
+
+        <h3>config.yaml</h3>
+        <pre>
+# Reference genome (edited headers: 1-27, W, Z, NW_*)
+reference: "genome/GCF_905163445.1_ilParAegt1.1_genomic.edited.fna"
+
+# Annotation
+annotation: "genome/GCF_905163445.1_ilParAegt1.1_genomic.gff"
+
+# Sample table
+samples: "samples.tsv"
+
+# Phenotype file
+phenotype_file: "data/phenotypes.txt"
+
+# Variant QC
+maf_threshold: 0.05
+geno_threshold: 0.1
+hwe_threshold: 1e-6
+mind_threshold: 0.1
+
+# Resources (local Mac: 28 cores, ~100 GB RAM — using 80%)
+threads: 22</pre>
+
+        <h3>Running the Pipeline</h3>
+        <pre>
+# Install micromamba (if not installed)
+curl -Ls https://micro.mamba.pm/api/micromamba/osx-arm64/latest | tar -xvj bin/micromamba
+
+# Dry run (see what will execute)
+snakemake -n
+
+# Run with micromamba for environment management (22 of 28 cores)
+snakemake --cores 22 --use-conda --conda-frontend micromamba
+
+# Generate Snakemake report
+snakemake --report report.html</pre>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PHASE 1 -->
+    <!-- ================================================================ -->
+    <h2 id="phase1">4. Phase 1: Read Quality Control</h2>
+    <div class="phase">
+        <h3>Objective</h3>
+        <p>Assess raw read quality, remove adapters and low-quality bases.</p>
+
+        <h3>Tools &amp; Parameters</h3>
+        <table>
+            <tr><th>Step</th><th>Tool</th><th>Key Parameters</th></tr>
+            <tr>
+                <td>Raw QC</td>
+                <td>FastQC 0.12+</td>
+                <td>Default settings, run on R1 and R2</td>
+            </tr>
+            <tr>
+                <td>Trimming</td>
+                <td>fastp 0.23+</td>
+                <td><code>--qualified_quality_phred 20 --length_required 50 --detect_adapter_for_pe</code></td>
+            </tr>
+        </table>
+
+        <h3>Snakemake Rules</h3>
+        <pre>
+rule fastqc_raw:
+    # Runs FastQC on raw R1 and R2 per sample
+
+rule fastp:
+    # Trim adapters, quality filter
+    # Output: {sample}_R1.trimmed.fastq.gz, {sample}_R2.trimmed.fastq.gz
+    # QC outputs: {sample}_fastp.json, {sample}_fastp.html</pre>
+    </div>
+
+    <div class="checkpoint">
+        <div class="checkpoint-header">
+            <span class="checkpoint-badge">QC CHECKPOINT 1</span>
+            <strong>Read Quality Report</strong>
+        </div>
+        <pre>
+rule multiqc_reads:
+    # Aggregates: FastQC zips + fastp JSONs
+    # Output: reports/qc1_reads/multiqc_reads.html</pre>
+        <table class="metrics-table">
+            <tr><th>Metric</th><th>Expected</th><th>Action if Failed</th></tr>
+            <tr><td>Per base quality</td><td>Q20+ across all positions</td><td>Trim more aggressively</td></tr>
+            <tr><td>Adapter content</td><td>&lt; 5% after trimming</td><td>Re-run fastp with explicit adapters</td></tr>
+            <tr><td>Reads passing filters</td><td>&gt; 90%</td><td>Investigate low-quality samples</td></tr>
+            <tr><td>GC content</td><td>~36% (matching <em>P. aegeria</em>)</td><td>Check for contamination</td></tr>
+        </table>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PHASE 2-3 -->
+    <!-- ================================================================ -->
+    <h2 id="phase2">5. Phase 2-3: Alignment and Post-Processing</h2>
+    <div class="phase">
+        <h3>Objective</h3>
+        <p>Align trimmed reads to the <span class="change">edited</span> <em>P. aegeria</em> reference and produce analysis-ready BAM files.</p>
+
+        <h3>Tools &amp; Parameters</h3>
+        <table>
+            <tr><th>Step</th><th>Tool</th><th>Details</th></tr>
+            <tr>
+                <td>Index reference</td>
+                <td>BWA-MEM2</td>
+                <td><code>bwa-mem2 index genome.edited.fna</code></td>
+            </tr>
+            <tr>
+                <td>Align</td>
+                <td>BWA-MEM2</td>
+                <td>PE alignment with read group tags: <code>@RG\tID:{sample}\tSM:{sample}\tPL:ILLUMINA</code></td>
+            </tr>
+            <tr>
+                <td>Sort</td>
+                <td>samtools sort</td>
+                <td>Coordinate sort</td>
+            </tr>
+            <tr>
+                <td>Mark duplicates</td>
+                <td>samtools markdup</td>
+                <td>Marks optical &amp; PCR duplicates, outputs metrics</td>
+            </tr>
+            <tr>
+                <td>Index</td>
+                <td>samtools index</td>
+                <td>Create .bai index</td>
+            </tr>
+            <tr>
+                <td>Stats</td>
+                <td>samtools stats/flagstat</td>
+                <td>Alignment statistics for MultiQC</td>
+            </tr>
+        </table>
+
+        <h3>Snakemake Rules</h3>
+        <pre>
+rule bwa_mem2_index:
+    # Index the edited reference genome
+
+rule bwa_mem2_align:
+    # Align trimmed reads &rarr; unsorted BAM (temp)
+
+rule sort_bam:
+    # Coordinate sort &rarr; sorted BAM (temp)
+
+rule mark_duplicates:
+    # samtools markdup &rarr; dedup BAM + metrics
+
+rule index_bam:
+    # Create .bai index
+
+rule alignment_stats:
+    # samtools stats + flagstat</pre>
+
+        <div class="tip">
+            <p><strong>Note:</strong> The <code>unsorted.bam</code> and <code>sorted.bam</code> files are marked as <code>temp()</code> in Snakemake and will be automatically deleted once downstream rules complete, saving disk space.</p>
+        </div>
+    </div>
+
+    <div class="checkpoint">
+        <div class="checkpoint-header">
+            <span class="checkpoint-badge">QC CHECKPOINT 2</span>
+            <strong>Alignment Quality Report</strong>
+        </div>
+        <pre>
+rule multiqc_alignment:
+    # Aggregates: samtools stats + flagstat + dedup metrics
+    # Output: reports/qc2_alignment/multiqc_alignment.html</pre>
+        <table class="metrics-table">
+            <tr><th>Metric</th><th>Expected</th><th>Action if Failed</th></tr>
+            <tr><td>Mapped reads</td><td>&gt; 95%</td><td>Check reference genome suitability</td></tr>
+            <tr><td>Properly paired</td><td>&gt; 90%</td><td>Check library prep, insert size</td></tr>
+            <tr><td>Duplication rate</td><td>&lt; 30%</td><td>May indicate over-amplification</td></tr>
+            <tr><td>Insert size</td><td>~600 bp (matching library prep)</td><td>Library QC issue if bimodal</td></tr>
+            <tr><td>Error rate</td><td>&lt; 1%</td><td>Sequencing quality issue</td></tr>
+        </table>
+        <div class="warning">
+            <p><strong>STOP if:</strong> Any sample has &lt; 80% mapping rate, or mean coverage &lt; 5X.</p>
+            <p><strong>Consider removing:</strong> Samples with coverage &lt; 8X or duplication &gt; 40%.</p>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PHASE 4-5 -->
+    <!-- ================================================================ -->
+    <h2 id="phase4">6. Phase 4-5: Variant Calling and Filtering</h2>
+    <div class="phase">
+        <h3>Objective</h3>
+        <p>Call variants jointly across all samples and apply quality filters to produce a clean set of biallelic SNPs.</p>
+
+        <h3>Tools &amp; Parameters</h3>
+        <table>
+            <tr><th>Step</th><th>Tool</th><th>Key Parameters</th></tr>
+            <tr>
+                <td>Pileup</td>
+                <td>bcftools mpileup</td>
+                <td><code>--min-MQ 20 --min-BQ 20 --annotate FORMAT/AD,FORMAT/DP</code></td>
+            </tr>
+            <tr>
+                <td>Call</td>
+                <td>bcftools call</td>
+                <td><code>--multiallelic-caller --variants-only</code></td>
+            </tr>
+            <tr>
+                <td>Normalize</td>
+                <td>bcftools norm</td>
+                <td>Left-align, split multiallelic</td>
+            </tr>
+            <tr>
+                <td>Filter</td>
+                <td>bcftools view/filter</td>
+                <td><code>QUAL&gt;20, INFO/DP&gt;5, biallelic SNPs only</code></td>
+            </tr>
+            <tr>
+                <td>Stats</td>
+                <td>bcftools stats</td>
+                <td>Raw + filtered stats for MultiQC</td>
+            </tr>
+        </table>
+
+        <div class="tip">
+            <p><strong>Parallelisation:</strong> Variant calling is split per chromosome/scaffold (70 regions), enabling parallel execution across the 22 available cores. Results are concatenated with <code>bcftools concat</code>.</p>
+        </div>
+
+        <h3>Snakemake Rules</h3>
+        <pre>
+rule create_bam_list:
+    # Generate list of all dedup BAMs for bcftools
+
+rule bcftools_call:
+    # Per-region: bcftools mpileup | bcftools call &rarr; {region}.vcf.gz
+
+rule concat_vcfs:
+    # bcftools concat all per-region VCFs &rarr; raw_variants.vcf.gz
+
+rule filter_variants:
+    # bcftools filter + norm &rarr; filtered_variants.vcf.gz
+
+rule variant_stats_raw / variant_stats_filtered:
+    # bcftools stats on both VCFs</pre>
+    </div>
+
+    <div class="checkpoint">
+        <div class="checkpoint-header">
+            <span class="checkpoint-badge">QC CHECKPOINT 3</span>
+            <strong>Variant Quality Report</strong>
+        </div>
+        <pre>
+rule multiqc_variants:
+    # Aggregates: bcftools stats (raw + filtered)
+    # Output: reports/qc3_variants/multiqc_variants.html</pre>
+        <table class="metrics-table">
+            <tr><th>Metric</th><th>Expected</th><th>Action if Failed</th></tr>
+            <tr><td>Total variants (raw)</td><td>~1&ndash;5M for 516 Mbp genome</td><td>Check calling parameters</td></tr>
+            <tr><td>SNPs retained after filter</td><td>&gt; 70% of raw</td><td>Filters may be too strict</td></tr>
+            <tr><td>Ti/Tv ratio</td><td>~2.0&ndash;2.5</td><td>Low ratio indicates false positives</td></tr>
+            <tr><td>Per-sample missingness</td><td>&lt; 5%</td><td>Low coverage samples</td></tr>
+        </table>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PHASE 6-7 -->
+    <!-- ================================================================ -->
+    <h2 id="phase6">7. Phase 6-7: Sample QC and Population Structure</h2>
+    <div class="phase">
+        <h3>Objective</h3>
+        <p>Apply GWAS-specific quality filters, check for population structure, and produce GWAS-ready datasets.</p>
+
+        <h3>Steps</h3>
+        <table>
+            <tr><th>Step</th><th>Tool</th><th>Details</th></tr>
+            <tr>
+                <td>VCF &rarr; PLINK</td>
+                <td>PLINK 2.0</td>
+                <td><code>--vcf &rarr; --make-bed --allow-extra-chr --set-missing-var-ids @:#</code></td>
+            </tr>
+            <tr>
+                <td>Variant QC</td>
+                <td>PLINK 2.0</td>
+                <td>MAF &ge; 0.05, genotype missingness &le; 10%, HWE p &gt; 1e-6</td>
+            </tr>
+            <tr>
+                <td>Sample QC</td>
+                <td>PLINK 2.0</td>
+                <td>Missingness &le; 10%, heterozygosity within 3 SD, relatedness (KING &lt; 0.0442)</td>
+            </tr>
+            <tr>
+                <td>LD pruning</td>
+                <td>PLINK 2.0</td>
+                <td><code>--indep-pairwise 50 5 0.2</code></td>
+            </tr>
+            <tr>
+                <td>PCA</td>
+                <td>PLINK 2.0</td>
+                <td>10 principal components on LD-pruned set</td>
+            </tr>
+        </table>
+
+        <h3>Snakemake Rules</h3>
+        <pre>
+rule vcf_to_plink:         # Convert VCF to PLINK bed/bim/fam
+rule variant_qc:           # Apply MAF, geno, HWE filters
+rule sample_qc:            # Remove samples failing missingness/het
+rule ld_prune:             # LD pruning for PCA
+rule pca:                  # Calculate 10 PCs</pre>
+    </div>
+
+    <div class="checkpoint">
+        <div class="checkpoint-header">
+            <span class="checkpoint-badge">QC CHECKPOINT 4</span>
+            <strong>GWAS-Ready Data Report</strong>
+        </div>
+        <pre>
+rule gwas_qc_stats:
+    # Generate custom MultiQC YAML from PLINK outputs
+
+rule multiqc_gwas:
+    # Output: reports/qc4_gwas/multiqc_gwas.html</pre>
+        <table class="metrics-table">
+            <tr><th>Metric</th><th>Threshold</th><th>Action</th></tr>
+            <tr><td>Sample missingness</td><td>&lt; 10%</td><td>Remove samples exceeding threshold</td></tr>
+            <tr><td>Heterozygosity (F)</td><td>Within 3 SD of mean</td><td>Remove outliers</td></tr>
+            <tr><td>Relatedness (KING)</td><td>Kinship &lt; 0.0442</td><td>Remove one of related pairs</td></tr>
+            <tr><td>PCA outliers</td><td>No extreme outliers</td><td>Investigate ancestry differences</td></tr>
+        </table>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PHASE 8-9 -->
+    <!-- ================================================================ -->
+    <h2 id="phase8">8. Phase 8-9: Association Analysis &amp; Visualization</h2>
+    <div class="phase">
+        <h3>GWAS Association (Phase 8)</h3>
+        <pre>
+rule gwas_association:
+    # PLINK 2.0 --glm firth-fallback hide-covar
+    # Covariates: PC1-PC5 from PCA
+    # Output: association_results.PHENO1.glm.logistic</pre>
+
+        <h3>Visualization (Phase 9)</h3>
+        <pre>
+rule plot_results:
+    # R script generating:
+    #   - Manhattan plot (qqman)
+    #   - QQ plot with lambda (genomic inflation)
+    #   - PCA plot (ggplot2)</pre>
+
+        <h3>Final Outputs</h3>
+        <table>
+            <tr><th>File</th><th>Description</th></tr>
+            <tr><td><code>results/gwas/association_results.PHENO1.glm.logistic</code></td><td>Full GWAS association results</td></tr>
+            <tr><td><code>results/plots/manhattan_plot.pdf</code></td><td>Manhattan plot</td></tr>
+            <tr><td><code>results/plots/qq_plot.pdf</code></td><td>QQ plot with genomic inflation factor</td></tr>
+            <tr><td><code>results/plots/pca_plot.pdf</code></td><td>Population structure PCA</td></tr>
+            <tr><td><code>reports/qc1-4_*.html</code></td><td>4 MultiQC checkpoint reports</td></tr>
+        </table>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- QC SUMMARY -->
+    <!-- ================================================================ -->
+    <h2 id="qc-summary">9. QC Decision Points</h2>
+    <div class="phase">
+        <table>
+            <tr>
+                <th>Checkpoint</th>
+                <th>Critical Failures (STOP)</th>
+                <th>Warnings (Investigate)</th>
+                <th>Continue if</th>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC1</span></td>
+                <td>&gt;20% samples with &lt;80% pass rate; systematic adapter contamination</td>
+                <td>High duplication in FastQC; unexpected GC (not ~36%)</td>
+                <td>Most samples Q20+ and &gt;90% pass</td>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC2</span></td>
+                <td>Mapping rate &lt;80%; mean coverage &lt;5X</td>
+                <td>Duplication &gt;30%; some samples &lt;10X</td>
+                <td>Most samples &gt;95% mapping, target coverage</td>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC3</span></td>
+                <td>Ti/Tv &lt;1.5; &lt;10K variants after filtering</td>
+                <td>Per-sample missing &gt;10%; Ti/Tv &lt;2.0</td>
+                <td>Ti/Tv ~2.0+, sufficient variants for GWAS</td>
+            </tr>
+            <tr>
+                <td><span class="checkpoint-badge">QC4</span></td>
+                <td>&gt;30% samples fail QC; strong uncontrolled structure</td>
+                <td>Related individuals; PCA outliers</td>
+                <td>Sufficient samples, structure controlled by PCs</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- SOFTWARE -->
+    <!-- ================================================================ -->
+    <h2 id="software">10. Software Summary</h2>
+    <table>
+        <tr>
+            <th>Tool</th>
+            <th>Version</th>
+            <th>Env File</th>
+            <th>Purpose</th>
+            <th>Checkpoint</th>
+        </tr>
+        <tr><td>Snakemake</td><td>8.0+</td><td>-</td><td>Workflow management</td><td>All</td></tr>
+        <tr><td>micromamba</td><td>2.5+</td><td>-</td><td>Environment management</td><td>All</td></tr>
+        <tr><td>FastQC</td><td>0.12+</td><td>envs/qc.yaml</td><td>Read quality assessment</td><td>QC1</td></tr>
+        <tr><td>fastp</td><td>0.23+</td><td>envs/qc.yaml</td><td>Read trimming &amp; filtering</td><td>QC1</td></tr>
+        <tr><td>MultiQC</td><td>1.21+</td><td>envs/qc.yaml</td><td>Aggregate QC reports</td><td>All</td></tr>
+        <tr><td>BWA-MEM2</td><td>2.2+</td><td>envs/align.yaml</td><td>Read alignment</td><td>QC2</td></tr>
+        <tr><td>samtools</td><td>1.19+</td><td>envs/align.yaml</td><td>BAM processing &amp; stats</td><td>QC2</td></tr>
+        <tr><td>bcftools</td><td>1.19+</td><td>envs/variant.yaml</td><td>Variant calling (mpileup/call), filtering &amp; stats</td><td>QC3</td></tr>
+        <tr><td>htslib</td><td>1.19+</td><td>envs/variant.yaml</td><td>bgzip, tabix</td><td>QC3</td></tr>
+        <tr><td>PLINK 2.0</td><td>2.00a5+</td><td>envs/gwas.yaml</td><td>GWAS QC &amp; association</td><td>QC4</td></tr>
+        <tr><td>R</td><td>4.3+</td><td>envs/plotting.yaml</td><td>Visualization</td><td>QC4</td></tr>
+        <tr><td>QUAST</td><td>5.2+</td><td>pip</td><td>Genome assembly QC</td><td>Pre-pipeline</td></tr>
+    </table>
+
+    <!-- ================================================================ -->
+    <!-- CHANGES FROM V1 -->
+    <!-- ================================================================ -->
+    <h2 id="changes">11. Changes from v1</h2>
+    <div class="phase">
+        <table>
+            <tr><th>Aspect</th><th>v1</th><th>v2 (this document)</th></tr>
+            <tr>
+                <td>Reference genome</td>
+                <td>Generic placeholder</td>
+                <td><em>P. aegeria</em> ilParAegt1.1 with <span class="change">edited</span> headers (chr 1-27, W, Z)</td>
+            </tr>
+            <tr>
+                <td>Genome validation</td>
+                <td>None</td>
+                <td>QUAST comparison confirms identical sequences after header edit</td>
+            </tr>
+            <tr>
+                <td>Sample input</td>
+                <td><code>fastq_dir</code> glob</td>
+                <td><code>samples.tsv</code> mapping NGI IDs to FASTQ paths</td>
+            </tr>
+            <tr>
+                <td>Samples</td>
+                <td>Generic "96 samples"</td>
+                <td>94 samples (P33459_101&ndash;P33459_194), 5 groups (K, L, F, Ku, G)</td>
+            </tr>
+            <tr>
+                <td>Test strategy</td>
+                <td>Not specified</td>
+                <td>Start with 2 samples (P33459_101, P33459_125)</td>
+            </tr>
+            <tr>
+                <td>Package manager</td>
+                <td>conda</td>
+                <td><strong>micromamba</strong></td>
+            </tr>
+            <tr>
+                <td>Workflow</td>
+                <td>Shell scripts / manual</td>
+                <td><strong>Snakemake</strong> with per-rule conda envs</td>
+            </tr>
+            <tr>
+                <td>Aligner</td>
+                <td>BWA-MEM (v1 Snakefile) / BWA-MEM2 (v1 HTML)</td>
+                <td><strong>BWA-MEM2</strong> consistently</td>
+            </tr>
+            <tr>
+                <td>Variant caller</td>
+                <td>FreeBayes</td>
+                <td><strong>bcftools mpileup/call</strong> (per-chromosome parallelisation)</td>
+            </tr>
+            <tr>
+                <td>Execution</td>
+                <td>Not specified / 8 cores</td>
+                <td>Local Mac (28 cores, ~100 GB RAM) — <strong>22 cores</strong> (80%)</td>
+            </tr>
+            <tr>
+                <td>FASTQ naming</td>
+                <td><code>{sample}_R1.fastq.gz</code></td>
+                <td>NGI convention: <code>P33459_{n}_S{x}_L006_R{1,2}_001.fastq.gz</code></td>
+            </tr>
+        </table>
+    </div>
+
+    <hr>
+    <p><em>Generated on 2026-03-04 | Project: P33459 / Megera_2 | Pipeline v2</em></p>
+    <p><em>GitHub: <a href="https://github.com/bioinfowheat/AnnaGWAS">bioinfowheat/AnnaGWAS</a></em></p>
+</body>
+</html>
