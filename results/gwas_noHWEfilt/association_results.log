@@ -1,0 +1,31 @@
+PLINK v2.0.0-a.7 M1 (28 Feb 2026)
+Options in effect:
+  --allow-extra-chr
+  --bfile results/plink/variants_qc_samples_noHWE
+  --chr-set 27
+  --covar results/pca/pca.eigenvec
+  --covar-col-nums 3-12
+  --glm firth-fallback hide-covar
+  --out results/gwas_noHWEfilt/association_results
+  --pheno results/gwas_noHWEfilt/phenotypes.txt
+
+Hostname: wlan-su-10-201-42-203.local.su.se
+Working directory: /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS
+Start time: Sat Mar  7 11:51:08 2026
+
+Random number seed: 1772880668
+98304 MiB RAM detected; reserving 49152 MiB for main workspace.
+Using up to 28 threads (change this with --threads).
+88 samples (0 females, 0 males, 88 ambiguous; 88 founders) loaded from
+results/plink/variants_qc_samples_noHWE.fam.
+Note: 16 nonstandard chromosome codes present.
+4241109 variants loaded from results/plink/variants_qc_samples_noHWE.bim.
+1 binary phenotype loaded (43 cases, 45 controls).
+10 covariates loaded from results/pca/pca.eigenvec.
+Calculating allele frequencies... done.
+Warning: --glm remaining case count is less than 10x predictor count for
+phenotype 'PHENO1'.
+--glm logistic-Firth hybrid regression on phenotype 'PHENO1': done.
+Results written to results/gwas_noHWEfilt/association_results.PHENO1.glm.logistic.hybrid .
+
+End time: Sat Mar  7 11:51:23 2026

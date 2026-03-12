@@ -1,0 +1,13 @@
+id: 'gwas_summary'
+section_name: 'GWAS QC Summary'
+description: 'Summary statistics for GWAS-ready data'
+plot_type: 'table'
+pconfig:
+  id: 'gwas_summary_table'
+  title: 'GWAS Quality Control Summary'
+data:
+  GWAS_Ready_Data:
+    Total_Variants: 4172019
+    Total_Samples: 88
+    Samples_Fail_Missingness: 6
+    Samples_Fail_Heterozygosity: 2

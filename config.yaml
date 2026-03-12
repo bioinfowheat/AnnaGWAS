@@ -1,46 +1,28 @@
 # =============================================================================
-# GWAS Pipeline Configuration
+# GWAS Pipeline v2 Configuration — YF-4363 / XI-4103 (snpseq01427)
+# Pararge aegeria — NN (non-diapause) vs DD (diapause)
 # =============================================================================
-# Edit these paths and parameters before running the pipeline
 
-# -----------------------------------------------------------------------------
-# Input Files
-# -----------------------------------------------------------------------------
+# Reference genome (edited headers: 1-27, W, Z, NW_*)
+reference: "genome/GCF_905163445.1_ilParAegt1.1_genomic.edited.fna"
 
-# Directory containing paired-end FASTQ files
-# Files should be named: {sample}_R1.fastq.gz and {sample}_R2.fastq.gz
-fastq_dir: "data/fastq"
+# Annotation
+annotation: "genome/GCF_905163445.1_ilParAegt1.1_genomic.gff"
 
-# Reference genome (FASTA format)
-reference: "data/reference/genome.fasta"
+# Sample table (tab-separated: sample, user_id, group, r1, r2)
+samples: "samples.tsv"
 
 # Phenotype file (tab-separated: sample_id, phenotype)
 # Phenotype should be coded as 1 (control) and 2 (case) for PLINK
 phenotype_file: "data/phenotypes.txt"
 
-# -----------------------------------------------------------------------------
-# Variant QC Thresholds
-# -----------------------------------------------------------------------------
-
-# Minor allele frequency threshold (exclude variants below this)
+# Variant QC thresholds
 maf_threshold: 0.05
-
-# Genotype missingness threshold (exclude variants missing in more than this fraction)
 geno_threshold: 0.1
-
-# Hardy-Weinberg equilibrium p-value threshold
 hwe_threshold: 1e-6
 
-# -----------------------------------------------------------------------------
-# Sample QC Thresholds
-# -----------------------------------------------------------------------------
-
-# Sample missingness threshold (exclude samples missing more than this fraction)
+# Sample QC thresholds
 mind_threshold: 0.1
 
-# -----------------------------------------------------------------------------
-# Computational Resources
-# -----------------------------------------------------------------------------
-
-# Default threads for rules (can be overridden per rule)
-threads: 8
+# Resources (local Mac: 28 cores, ~90 GB RAM — using ~85%)
+threads: 24

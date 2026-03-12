@@ -1,0 +1,85 @@
+========== 2026-03-06 12:47:02 ==========
+Dedup BAMs: 55/94
+Progress: 80 of 368 steps (22%) done
+Disk free: 320Gi
+Snakemake running: yes
+
+========== 2026-03-06 13:47:02 ==========
+Dedup BAMs: 60/94
+Progress: 105 of 368 steps (29%) done
+Disk free: 309Gi
+Snakemake running: yes
+
+========== 2026-03-06 14:47:02 ==========
+Dedup BAMs: 64/94
+Progress: 128 of 368 steps (35%) done
+Disk free: 299Gi
+Snakemake running: yes
+
+========== 2026-03-06 15:47:03 ==========
+Dedup BAMs: 70/94
+Progress: 158 of 368 steps (43%) done
+Disk free: 281Gi
+Snakemake running: yes
+
+========== 2026-03-06 16:47:03 ==========
+Dedup BAMs: 76/94
+Progress: 184 of 368 steps (50%) done
+Disk free: 266Gi
+Snakemake running: yes
+
+========== 2026-03-06 17:47:03 ==========
+Dedup BAMs: 81/94
+Progress: 210 of 368 steps (57%) done
+Disk free: 250Gi
+Snakemake running: yes
+
+========== 2026-03-06 18:47:03 ==========
+Dedup BAMs: 85/94
+Progress: 230 of 368 steps (62%) done
+Disk free: 235Gi
+Snakemake running: yes
+
+========== 2026-03-06 19:47:03 ==========
+Dedup BAMs: 88/94
+Progress: 248 of 368 steps (67%) done
+Disk free: 220Gi
+Snakemake running: yes
+
+========== 2026-03-06 20:47:03 ==========
+Dedup BAMs: 92/94
+Progress: 261 of 368 steps (71%) done
+Disk free: 200Gi
+Snakemake running: yes
+
+========== 2026-03-06 21:47:03 ==========
+Dedup BAMs: 93/94
+Progress: 274 of 368 steps (74%) done
+Disk free: 197Gi
+Snakemake running: yes
+
+========== 2026-03-06 22:47:04 ==========
+Dedup BAMs: 93/94
+Progress: 275 of 368 steps (75%) done
+Disk free: 187Gi
+Snakemake running: yes
+
+========== 2026-03-06 23:47:02 ==========
+Dedup BAMs: 94/94
+Progress: 319 of 368 steps (87%) done
+Disk free: 192Gi
+Snakemake running: yes
+
+========== 2026-03-07 00:47:04 ==========
+Dedup BAMs: 94/94
+Progress: 335 of 368 steps (91%) done
+Disk free: 190Gi
+Snakemake running: yes
+
+========== 2026-03-07 01:47:04 ==========
+Dedup BAMs: 94/94
+Progress: 368 of 368 steps (100%) done
+Disk free: 186Gi
+Snakemake running: NO - may have finished or failed
+
+Pipeline no longer running. Monitor exiting.

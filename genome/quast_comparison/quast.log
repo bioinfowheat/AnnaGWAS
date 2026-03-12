@@ -1,0 +1,57 @@
+/Users/stockholmbutterflylab/micromamba/envs/quast/bin/quast.py /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/genome/GCF_905163445.1_ilParAegt1.1_genomic.fna /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/genome/GCF_905163445.1_ilParAegt1.1_genomic.edited.fna -o /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/genome/quast_comparison --labels original,edited --min-contig 1 -t 1
+
+Version: 5.2.0
+
+System information:
+  OS: macOS-15.3-arm64-arm-64bit (macosx)
+  Python version: 3.12.12
+  CPUs number: 28
+
+Started: 2026-03-04 14:07:52
+
+Logging to /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/genome/quast_comparison/quast.log
+NOTICE: Output directory already exists and looks like a QUAST output dir. Existing results can be reused (e.g. previously generated alignments)!
+
+CWD: /Users/stockholmbutterflylab/Desktop/2025_ngi_data/files/P33459
+Main parameters: 
+  MODE: default, threads: 1, min contig length: 1, min alignment length: 65, min alignment IDY: 95.0, \
+  ambiguity: one, min local misassembly length: 200, min extensive misassembly length: 1000
+
+WARNING: Can't draw plots: python-matplotlib is missing or corrupted.
+
+Contigs:
+  Pre-processing...
+  1  /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/genome/GCF_905163445.1_ilParAegt1.1_genomic.fna ==> original
+  2  /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/genome/GCF_905163445.1_ilParAegt1.1_genomic.edited.fna ==> edited
+
+2026-03-04 14:08:10
+Running Basic statistics processor...
+  Contig files: 
+    1  original
+    2  edited
+  Calculating N50 and L50...
+    1  original, N50 = 19375358, L50 = 13, auN = 18657976.4, Total length = 516571003, GC % = 35.99, # N's per 100 kbp =  0.39
+    2  edited, N50 = 19375358, L50 = 13, auN = 18657976.4, Total length = 516571003, GC % = 35.99, # N's per 100 kbp =  0.39
+Done.
+
+NOTICE: Genes are not predicted by default. Use --gene-finding or --glimmer option to enable it.
+
+2026-03-04 14:08:27
+Creating large visual summaries...
+This may take a while: press Ctrl-C to skip this step..
+  1 of 1: Creating Icarus viewers...
+Done
+
+2026-03-04 14:08:30
+RESULTS:
+  Text versions of total report are saved to /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/genome/quast_comparison/report.txt, report.tsv, and report.tex
+  Text versions of transposed total report are saved to /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/genome/quast_comparison/transposed_report.txt, transposed_report.tsv, and transposed_report.tex
+  HTML version (interactive tables and plots) is saved to /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/genome/quast_comparison/report.html
+  Icarus (contig browser) is saved to /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/genome/quast_comparison/icarus.html
+  Log is saved to /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/genome/quast_comparison/quast.log
+
+Finished: 2026-03-04 14:08:30
+Elapsed time: 0:00:37.956421
+NOTICEs: 2; WARNINGs: 1; non-fatal ERRORs: 0
+
+Thank you for using QUAST!

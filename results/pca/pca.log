@@ -1,0 +1,31 @@
+PLINK v2.0.0-a.7 M1 (28 Feb 2026)
+Options in effect:
+  --allow-extra-chr
+  --bfile results/plink/variants_qc_samples
+  --chr-set 27
+  --extract results/plink/pruned.prune.in
+  --out results/pca/pca
+  --pca 10
+
+Hostname: wlan-su-10-201-42-203.local.su.se
+Working directory: /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS
+Start time: Sat Mar  7 01:38:11 2026
+
+Random number seed: 1772843891
+98304 MiB RAM detected; reserving 49152 MiB for main workspace.
+Using up to 28 threads (change this with --threads).
+88 samples (0 females, 0 males, 88 ambiguous; 88 founders) loaded from
+results/plink/variants_qc_samples.fam.
+Note: 15 nonstandard chromosome codes present.
+4172019 variants loaded from results/plink/variants_qc_samples.bim.
+Note: No phenotype data present.
+--extract: 263850 variants remaining.
+Calculating allele frequencies... done.
+263850 variants remaining after main filters.
+Constructing GRM: done.
+Correcting for missingness... done.
+Extracting eigenvalues and eigenvectors... done.
+--pca: Eigenvectors written to results/pca/pca.eigenvec , and eigenvalues
+written to results/pca/pca.eigenval .
+
+End time: Sat Mar  7 01:38:12 2026

@@ -1,0 +1,1034 @@
+---
+title: "EHH Haplotype-Based Selection Analysis — Chromosome 3"
+subtitle: "P. aegeria backcross GWAS: NN vs DD populations"
+author: "GWAS Pipeline"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    code_folding: show
+    theme: flatly
+    highlight: tango
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 10,
+  fig.height = 6,
+  dpi = 150
+)
+```
+
+# Background
+
+## Extended Haplotype Homozygosity (EHH)
+
+EHH-based statistics detect **signatures of recent positive selection** by examining the
+decay of haplotype homozygosity around a focal variant. Under neutrality, haplotypes
+break down quickly due to recombination. Under positive selection, a beneficial allele
+sweeps to high frequency carrying a long, intact haplotype — creating an unusually
+extended region of homozygosity.
+
+### Key statistics
+
+| Statistic | What it detects | Comparison |
+|-----------|----------------|------------|
+| **iHS** (integrated haplotype score) | Ongoing/incomplete selective sweeps within a single population | Compares EHH of ancestral vs derived allele at same locus |
+| **XP-EHH** (cross-population EHH) | Completed or near-complete sweeps that differ between populations | Compares haplotype lengths between two populations |
+| **Rsb** | Similar to XP-EHH but uses iES (integrated EHHS) | Between-population comparison |
+
+### Important caveats
+
+- Data **must be phased** for EHH statistics to be meaningful. We use **Beagle 5.5** to
+  statistically phase our FreeBayes VCF before running `rehh`.
+- We use `polarize_vcf = FALSE` since we lack an outgroup to define ancestral/derived
+  alleles. The package uses major/minor allele frequency instead.
+- EHH methods assume a recombination map is available. Without one, physical positions
+  (bp) are used as a proxy. Beagle assumes a uniform rate of 1 cM/Mb when no genetic
+  map is provided — this is approximate but standard for non-model organisms.
+
+**Note on phasing tool choice:** SHAPEIT5 was our first choice but is only available
+for Linux (x86_64), not macOS ARM64. Beagle 5.5 is Java-based (cross-platform),
+widely used for non-model organisms, and produces comparable phasing accuracy —
+especially at moderate sample sizes (~84 diploid individuals) without a reference panel.
+
+## Why phasing matters
+
+EHH statistics measure the extent of **haplotype** homozygosity around a focal SNP.
+Without phasing, we don't know which alleles are on the same chromosome. Unphased data
+forces `rehh` to treat each diploid genotype as two independent haplotypes with random
+phase assignment, which:
+
+- Underestimates the true extent of haplotype homozygosity
+- Reduces power to detect selective sweeps
+- Can create false signals from phase-switching artefacts
+
+Beagle uses LD patterns across the 84 diploid samples (168 haplotypes) to
+statistically infer phase. With no genetic map available for *P. aegeria*, it
+assumes a uniform recombination rate of 1 cM/Mb.
+
+# Setup
+
+## Install and load packages
+
+```{r install-packages, eval=FALSE}
+# Run once if not installed
+install.packages("rehh")
+install.packages("tidyverse")
+install.packages("data.table")
+```
+
+```{r load-packages}
+library(rehh)
+library(tidyverse)
+library(data.table)
+```
+
+## Define paths
+
+```{r paths}
+# Project paths
+project_dir <- "/Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS"
+vcf_full    <- file.path(project_dir, "results/BayPass.gwas_maf0.1geno0.2/vcf/freebayes_filtered.vcf.gz")
+samples_tsv <- file.path(project_dir, "samples.tsv")
+
+# Tool paths (from Snakemake conda environments)
+conda_bin   <- file.path(project_dir, ".snakemake/conda/aedce8cd90aec491ec84dcf2bee0648f_/bin")
+bcftools    <- file.path(conda_bin, "bcftools")
+
+# Output directory for intermediate files
+out_dir <- file.path(project_dir, "results/EHH_analysis")
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+
+# Chromosome of interest
+chr_target <- "3"
+```
+
+## Phasing tool: Beagle 5.5
+
+Beagle 5.5 is installed via micromamba in a dedicated environment.
+It requires Java (OpenJDK), which is included in the environment.
+
+```{r install-beagle, eval=FALSE}
+# Run once to install Beagle (already done if following this pipeline)
+system("MAMBA_ROOT_PREFIX=~/micromamba /tmp/bin/micromamba create -n phasing -c bioconda -c conda-forge beagle openjdk -y")
+```
+
+```{r find-beagle}
+# micromamba runner for the phasing environment
+micromamba <- "/tmp/bin/micromamba"
+mamba_prefix <- file.path(Sys.getenv("HOME"), "micromamba")
+
+# Helper function to run commands in the phasing environment
+run_beagle_env <- function(cmd) {
+  full_cmd <- sprintf("MAMBA_ROOT_PREFIX=%s %s run -n phasing bash -c '%s'",
+                       mamba_prefix, micromamba, cmd)
+  system(full_cmd, intern = TRUE)
+}
+
+# Verify Beagle is accessible
+beagle_test <- run_beagle_env("beagle 2>&1 | head -1")
+cat("Beagle version:", beagle_test, "\n")
+```
+
+# Data Preparation
+
+## Read sample metadata
+
+```{r sample-metadata}
+samples <- read_tsv(samples_tsv, show_col_types = FALSE)
+
+# Get the actual samples present in the VCF
+vcf_samples <- system(sprintf("%s query -l %s 2>/dev/null", bcftools, vcf_full), intern = TRUE)
+cat("Samples in VCF:", length(vcf_samples), "\n")
+cat("Samples in metadata:", nrow(samples), "\n")
+
+# Filter metadata to only samples present in the VCF
+samples <- samples %>% filter(sample %in% vcf_samples)
+cat("Samples matched:", nrow(samples), "\n\n")
+
+# Summarise groups
+cat("Sample groups:\n")
+table(samples$group)
+
+# Create sample lists for each population
+nn_samples <- samples %>% filter(group == "NN") %>% pull(sample)
+dd_samples <- samples %>% filter(group == "DD") %>% pull(sample)
+
+cat("\nNN samples:", length(nn_samples), "\n")
+cat("DD samples:", length(dd_samples), "\n")
+```
+
+## Step 1: Extract chromosome 3 (biallelic SNPs)
+
+We use `bcftools` to extract biallelic SNPs on chromosome 3 and prepare
+the VCF for phasing.
+
+```{r extract-chr3, results='hide'}
+# Write sample lists to files
+nn_list_file <- file.path(out_dir, "nn_samples.txt")
+dd_list_file <- file.path(out_dir, "dd_samples.txt")
+writeLines(nn_samples, nn_list_file)
+writeLines(dd_samples, dd_list_file)
+
+# Step 1a: Extract biallelic SNPs on chr3 (all samples)
+vcf_chr3_raw <- file.path(out_dir, "chr3_biallelic_snps.vcf.gz")
+cmd_extract <- sprintf(
+  "%s view -r %s -m2 -M2 -v snps --min-af 0.05:minor %s -Oz -o %s && %s index %s",
+  bcftools, chr_target, vcf_full, vcf_chr3_raw,
+  bcftools, vcf_chr3_raw
+)
+cat("Extracting chr3 biallelic SNPs...\n")
+system(cmd_extract)
+
+# Step 1b: Fix ploidy — FreeBayes can produce haploid genotype calls at some sites
+# (e.g., "0" instead of "0/0"). Beagle requires all genotypes to be diploid.
+vcf_chr3_diploid <- file.path(out_dir, "chr3_biallelic_snps_diploid.vcf.gz")
+cmd_fixploidy <- sprintf(
+  "%s +fixploidy %s -Oz -o %s -- -f 2 && %s index %s",
+  bcftools, vcf_chr3_raw, vcf_chr3_diploid,
+  bcftools, vcf_chr3_diploid
+)
+cat("Fixing ploidy (haploid → diploid)...\n")
+system(cmd_fixploidy)
+
+cat("VCF extraction and ploidy fix complete.\n")
+```
+
+```{r verify-extraction}
+cmd <- sprintf("%s stats %s 2>/dev/null | grep '^SN'", bcftools, vcf_chr3_diploid)
+result <- system(cmd, intern = TRUE)
+cat("Chromosome 3 stats (pre-phasing):\n")
+cat(paste(result, collapse = "\n"), "\n")
+```
+
+## Step 2: Phase with Beagle 5.5
+
+We run Beagle on all 84 samples together. Phasing jointly gives the best
+statistical power — we split into populations afterwards.
+
+**Key parameters:**
+
+- No genetic map available → uniform 1 cM/Mb assumed (default)
+- No reference panel → phasing from LD within our 84 samples only
+- `impute=false` → we only want phasing, not imputation of ungenotyped sites
+- `chrom=3` → restrict to chromosome 3
+- `nthreads=8` for parallel processing
+
+```{r run-beagle}
+vcf_chr3_phased <- file.path(out_dir, "chr3_phased.vcf.gz")
+beagle_prefix   <- file.path(out_dir, "chr3_phased")
+
+# Only run if phased file doesn't already exist
+if (!file.exists(vcf_chr3_phased)) {
+
+  # Use the ploidy-fixed VCF as input; -Xmx8g for sufficient heap space
+  beagle_cmd <- sprintf(
+    "beagle -Xmx8g gt=%s out=%s chrom=%s impute=false nthreads=8 2>&1",
+    vcf_chr3_diploid, beagle_prefix, chr_target
+  )
+
+  cat("Running Beagle 5.5 phasing...\n")
+  cat("Command:", beagle_cmd, "\n\n")
+
+  phase_result <- run_beagle_env(beagle_cmd)
+  cat(paste(tail(phase_result, 20), collapse = "\n"), "\n")
+
+  # Index the phased output
+  system(sprintf("%s index -t %s", bcftools, vcf_chr3_phased))
+  cat("\nPhasing complete.\n")
+} else {
+  cat("Phased file already exists, skipping Beagle.\n")
+}
+```
+
+## Step 3: Verify phasing
+
+```{r verify-phasing}
+# Check that genotypes are now phased (pipe-separated: 0|1 instead of 0/1)
+cmd_check <- sprintf(
+  "%s query -f '%%POS\\t[%%GT\\t]\\n' %s 2>/dev/null | head -5",
+  bcftools, vcf_chr3_phased
+)
+phased_check <- system(cmd_check, intern = TRUE)
+cat("First 5 phased genotypes (should show 0|1, 1|0, etc.):\n")
+for (line in phased_check) {
+  # Show first few fields only
+  fields <- strsplit(line, "\t")[[1]]
+  cat("  pos", fields[1], ":", paste(fields[2:min(6, length(fields))], collapse = " "), "...\n")
+}
+
+# Count phased vs unphased
+cmd_count <- sprintf(
+  "%s query -f '[%%GT\\n]' %s 2>/dev/null | head -10000 | grep -c '|'",
+  bcftools, vcf_chr3_phased
+)
+n_phased <- as.integer(system(cmd_count, intern = TRUE))
+cat("\nPhased genotypes in first 10000:", n_phased, "/ 10000\n")
+```
+
+## Step 4: Split phased VCF by population
+
+```{r split-populations, results='hide'}
+vcf_chr3_nn <- file.path(out_dir, "chr3_phased_NN.vcf.gz")
+vcf_chr3_dd <- file.path(out_dir, "chr3_phased_DD.vcf.gz")
+
+# NN population
+cmd_nn <- sprintf(
+  "%s view -S %s %s -Oz -o %s && %s index %s",
+  bcftools, nn_list_file, vcf_chr3_phased, vcf_chr3_nn,
+  bcftools, vcf_chr3_nn
+)
+system(cmd_nn)
+
+# DD population
+cmd_dd <- sprintf(
+  "%s view -S %s %s -Oz -o %s && %s index %s",
+  bcftools, dd_list_file, vcf_chr3_phased, vcf_chr3_dd,
+  bcftools, vcf_chr3_dd
+)
+system(cmd_dd)
+
+cat("Population-split phased VCFs created.\n")
+```
+
+## Verify final VCFs
+
+```{r verify-vcfs}
+for (vcf_path in c(vcf_chr3_nn, vcf_chr3_dd)) {
+  cmd <- sprintf("%s stats %s 2>/dev/null | grep '^SN.*number of SNPs'", bcftools, vcf_path)
+  result <- system(cmd, intern = TRUE)
+  cat(basename(vcf_path), ":", result, "\n")
+}
+```
+
+# Load phased data into rehh
+
+```{r load-rehh}
+# Load ALL samples combined (phased VCF)
+all_hh <- data2haplohh(
+  hap_file = vcf_chr3_phased,
+  polarize_vcf = FALSE,
+  vcf_reader = "data.table",
+  chr.name = chr_target,
+  verbose = FALSE
+)
+
+# Load NN population (phased VCF)
+nn_hh <- data2haplohh(
+  hap_file = vcf_chr3_nn,
+  polarize_vcf = FALSE,
+  vcf_reader = "data.table",
+  chr.name = chr_target,
+  verbose = FALSE
+)
+
+# Load DD population (phased VCF)
+dd_hh <- data2haplohh(
+  hap_file = vcf_chr3_dd,
+  polarize_vcf = FALSE,
+  vcf_reader = "data.table",
+  chr.name = chr_target,
+  verbose = FALSE
+)
+
+cat("ALL haplohh object:", nrow(all_hh@haplo), "haplotypes x", ncol(all_hh@haplo), "markers\n")
+cat("NN haplohh object:", nrow(nn_hh@haplo), "haplotypes x", ncol(nn_hh@haplo), "markers\n")
+cat("DD haplohh object:", nrow(dd_hh@haplo), "haplotypes x", ncol(dd_hh@haplo), "markers\n")
+```
+
+## Filter for minor allele frequency
+
+```{r maf-filter}
+all_hh_f <- subset(all_hh, min_maf = 0.05)
+nn_hh_f <- subset(nn_hh, min_maf = 0.05)
+dd_hh_f <- subset(dd_hh, min_maf = 0.05)
+
+cat("After MAF filter:\n")
+cat("ALL:", ncol(all_hh_f@haplo), "markers\n")
+cat("NN:", ncol(nn_hh_f@haplo), "markers\n")
+cat("DD:", ncol(dd_hh_f@haplo), "markers\n")
+```
+
+# iHS Selection Scan
+
+## Compute EHH scans
+
+`scan_hh()` computes integrated EHH (iHH) for each SNP — the area under the EHH
+decay curve for each allele. This is the raw material for iHS, XP-EHH and Rsb.
+
+```{r scan-hh}
+all_scan <- scan_hh(all_hh_f, polarized = FALSE)
+nn_scan  <- scan_hh(nn_hh_f, polarized = FALSE)
+dd_scan  <- scan_hh(dd_hh_f, polarized = FALSE)
+
+cat("ALL scan:", nrow(all_scan), "variants scanned\n")
+cat("NN scan: ", nrow(nn_scan), "variants scanned\n")
+cat("DD scan: ", nrow(dd_scan), "variants scanned\n")
+```
+
+## Compute iHS
+
+`ihh2ihs()` converts the raw iHH values to the standardised iHS statistic.
+Since our data is unpolarised, we use `freqbin = 1` (single frequency bin)
+to avoid frequency-dependent standardisation artefacts.
+
+```{r compute-ihs}
+all_ihs <- ihh2ihs(all_scan, freqbin = 1)
+nn_ihs  <- ihh2ihs(nn_scan, freqbin = 1)
+dd_ihs  <- ihh2ihs(dd_scan, freqbin = 1)
+```
+
+## Plot iHS — All samples combined {.tabset}
+
+The combined iHS treats all 84 individuals (NN + DD) as a single population.
+This maximises sample size and haplotype diversity, giving the best power to
+detect sweeps shared across the backcross populations.
+
+### iHS values & p-values
+
+```{r plot-ihs-all, fig.height=8}
+par(mfrow = c(2, 1))
+
+plot(all_ihs$ihs$POSITION / 1e6, all_ihs$ihs$IHS,
+     pch = 16, cex = 0.3, col = alpha("grey30", 0.5),
+     xlab = "Position on Chromosome 3 (Mb)",
+     ylab = "iHS",
+     main = "iHS — All samples combined (Chromosome 3)")
+abline(h = c(-2, 2), col = "red", lty = 2)
+
+plot(all_ihs$ihs$POSITION / 1e6, all_ihs$ihs$LOGPVALUE,
+     pch = 16, cex = 0.3, col = alpha("grey30", 0.5),
+     xlab = "Position on Chromosome 3 (Mb)",
+     ylab = "-log10(p-value)",
+     main = "iHS -log10(p) — All samples combined")
+abline(h = 4, col = "red", lty = 2)
+abline(h = 6, col = "darkred", lty = 2)
+
+par(mfrow = c(1, 1))
+```
+
+### Top 20 combined iHS hits
+
+```{r top-ihs-all}
+all_ihs$ihs %>%
+  as_tibble() %>%
+  arrange(desc(LOGPVALUE)) %>%
+  head(20) %>%
+  mutate(POSITION_Mb = round(POSITION / 1e6, 3)) %>%
+  select(CHR, POSITION, POSITION_Mb, IHS, LOGPVALUE)
+```
+
+## Plot iHS — Per population {.tabset}
+
+### NN population
+
+```{r plot-ihs-nn, fig.height=8}
+par(mfrow = c(2, 1))
+
+plot(nn_ihs$ihs$POSITION / 1e6, nn_ihs$ihs$IHS,
+     pch = 16, cex = 0.3, col = alpha("steelblue", 0.5),
+     xlab = "Position on Chromosome 3 (Mb)",
+     ylab = "iHS",
+     main = "iHS — NN population (Chromosome 3)")
+abline(h = c(-2, 2), col = "red", lty = 2)
+
+plot(nn_ihs$ihs$POSITION / 1e6, nn_ihs$ihs$LOGPVALUE,
+     pch = 16, cex = 0.3, col = alpha("steelblue", 0.5),
+     xlab = "Position on Chromosome 3 (Mb)",
+     ylab = "-log10(p-value)",
+     main = "iHS -log10(p) — NN population")
+abline(h = 4, col = "red", lty = 2)
+
+par(mfrow = c(1, 1))
+```
+
+### DD population
+
+```{r plot-ihs-dd, fig.height=8}
+par(mfrow = c(2, 1))
+
+plot(dd_ihs$ihs$POSITION / 1e6, dd_ihs$ihs$IHS,
+     pch = 16, cex = 0.3, col = alpha("darkorange", 0.5),
+     xlab = "Position on Chromosome 3 (Mb)",
+     ylab = "iHS",
+     main = "iHS — DD population (Chromosome 3)")
+abline(h = c(-2, 2), col = "red", lty = 2)
+
+plot(dd_ihs$ihs$POSITION / 1e6, dd_ihs$ihs$LOGPVALUE,
+     pch = 16, cex = 0.3, col = alpha("darkorange", 0.5),
+     xlab = "Position on Chromosome 3 (Mb)",
+     ylab = "-log10(p-value)",
+     main = "iHS -log10(p) — DD population")
+abline(h = 4, col = "red", lty = 2)
+
+par(mfrow = c(1, 1))
+```
+
+## Top iHS hits — per population
+
+```{r top-ihs}
+cat("=== Top 20 iHS hits — NN population ===\n")
+nn_ihs$ihs %>%
+  as_tibble() %>%
+  arrange(desc(LOGPVALUE)) %>%
+  head(20) %>%
+  mutate(POSITION_Mb = round(POSITION / 1e6, 3)) %>%
+  select(CHR, POSITION, POSITION_Mb, IHS, LOGPVALUE)
+
+cat("\n=== Top 20 iHS hits — DD population ===\n")
+dd_ihs$ihs %>%
+  as_tibble() %>%
+  arrange(desc(LOGPVALUE)) %>%
+  head(20) %>%
+  mutate(POSITION_Mb = round(POSITION / 1e6, 3)) %>%
+  select(CHR, POSITION, POSITION_Mb, IHS, LOGPVALUE)
+```
+
+# Cross-Population Selection Scan (XP-EHH)
+
+XP-EHH compares haplotype lengths between two populations. Positive values indicate
+selection in the first population (DD); negative values indicate selection in the
+second population (NN).
+
+## Compute XP-EHH
+
+```{r compute-xpehh}
+xpehh <- ies2xpehh(
+  dd_scan, nn_scan,
+  popname1 = "DD",
+  popname2 = "NN",
+  include_freq = TRUE
+)
+
+cat("XP-EHH computed for", nrow(xpehh), "variants\n")
+```
+
+## Plot XP-EHH
+
+```{r plot-xpehh, fig.height=10}
+par(mfrow = c(2, 1))
+
+# XP-EHH values
+plot(xpehh$POSITION / 1e6, xpehh$XPEHH_DD_NN,
+     pch = 16, cex = 0.3,
+     col = ifelse(xpehh$XPEHH_DD_NN > 0, alpha("darkorange", 0.4), alpha("steelblue", 0.4)),
+     xlab = "Position on Chromosome 3 (Mb)",
+     ylab = "XP-EHH (DD vs NN)",
+     main = "XP-EHH — DD vs NN (Chromosome 3)")
+abline(h = 0, col = "grey40", lty = 1)
+abline(h = c(-2, 2), col = "red", lty = 2)
+legend("topright",
+       legend = c("Selection in DD (+)", "Selection in NN (-)"),
+       col = c("darkorange", "steelblue"), pch = 16, cex = 0.8)
+
+# Log p-values
+plot(xpehh$POSITION / 1e6, xpehh$LOGPVALUE,
+     pch = 16, cex = 0.3, col = alpha("purple", 0.4),
+     xlab = "Position on Chromosome 3 (Mb)",
+     ylab = "-log10(p-value)",
+     main = "XP-EHH -log10(p) — DD vs NN")
+abline(h = 4, col = "red", lty = 2)
+abline(h = 6, col = "darkred", lty = 2)
+
+par(mfrow = c(1, 1))
+```
+
+## Top XP-EHH hits
+
+```{r top-xpehh}
+xpehh_tbl <- xpehh %>%
+  as_tibble() %>%
+  mutate(POSITION_Mb = round(POSITION / 1e6, 3))
+
+cat("=== Top 20 XP-EHH hits (selection in DD, positive values) ===\n")
+xpehh_tbl %>%
+  arrange(desc(XPEHH_DD_NN)) %>%
+  head(20) %>%
+  select(CHR, POSITION, POSITION_Mb, XPEHH_DD_NN, LOGPVALUE, starts_with("FREQ_A1"))
+
+cat("\n=== Top 20 XP-EHH hits (selection in NN, negative values) ===\n")
+xpehh_tbl %>%
+  arrange(XPEHH_DD_NN) %>%
+  head(20) %>%
+  select(CHR, POSITION, POSITION_Mb, XPEHH_DD_NN, LOGPVALUE, starts_with("FREQ_A1"))
+
+cat("\n=== Top 20 by p-value (either direction) ===\n")
+xpehh_tbl %>%
+  arrange(desc(LOGPVALUE)) %>%
+  head(20) %>%
+  select(CHR, POSITION, POSITION_Mb, XPEHH_DD_NN, LOGPVALUE)
+```
+
+# Rsb (between-population iES comparison)
+
+Rsb provides an alternative cross-population test using standardised integrated EHHS.
+
+```{r compute-rsb}
+rsb <- ines2rsb(
+  dd_scan, nn_scan,
+  popname1 = "DD",
+  popname2 = "NN"
+)
+
+cat("Rsb computed for", nrow(rsb), "variants\n")
+```
+
+```{r plot-rsb, fig.height=8}
+par(mfrow = c(2, 1))
+
+plot(rsb$POSITION / 1e6, rsb$RSB_DD_NN,
+     pch = 16, cex = 0.3,
+     col = ifelse(rsb$RSB_DD_NN > 0, alpha("darkorange", 0.4), alpha("steelblue", 0.4)),
+     xlab = "Position on Chromosome 3 (Mb)",
+     ylab = "Rsb (DD vs NN)",
+     main = "Rsb — DD vs NN (Chromosome 3)")
+abline(h = 0, col = "grey40")
+abline(h = c(-2, 2), col = "red", lty = 2)
+
+plot(rsb$POSITION / 1e6, rsb$LOGPVALUE,
+     pch = 16, cex = 0.3, col = alpha("purple", 0.4),
+     xlab = "Position on Chromosome 3 (Mb)",
+     ylab = "-log10(p-value)",
+     main = "Rsb -log10(p) — DD vs NN")
+abline(h = 4, col = "red", lty = 2)
+
+par(mfrow = c(1, 1))
+```
+
+# Haplotype Structure at Top Hits
+
+## Identify top XP-EHH hit
+
+```{r find-top-hit}
+top_hit <- xpehh_tbl %>% arrange(desc(LOGPVALUE)) %>% slice(1)
+
+cat("Top XP-EHH hit:\n")
+cat("  Position:", top_hit$POSITION, "(", round(top_hit$POSITION / 1e6, 3), "Mb)\n")
+cat("  XP-EHH:", round(top_hit$XPEHH_DD_NN, 3), "\n")
+cat("  -log10(p):", round(top_hit$LOGPVALUE, 3), "\n")
+
+focal_pos <- top_hit$POSITION
+```
+
+## Bifurcation diagrams
+
+Bifurcation diagrams show how haplotypes branch away from a focal SNP.
+Under selection, one haplotype extends much further than the other.
+
+```{r bifurcation, fig.height=8}
+# Find marker index in each haplohh object
+marker_nn <- which(nn_hh_f@positions == focal_pos)
+marker_dd <- which(dd_hh_f@positions == focal_pos)
+
+if (length(marker_nn) > 0 & length(marker_dd) > 0) {
+
+  # Compute furcation trees
+  furc_nn <- calc_furcation(nn_hh_f, mrk = marker_nn)
+  furc_dd <- calc_furcation(dd_hh_f, mrk = marker_dd)
+
+  # Define a window around the focal SNP for plotting
+  window <- 500000  # 500 kb on either side
+  xlims <- c(focal_pos - window, focal_pos + window)
+
+  par(mfrow = c(2, 1))
+  plot(furc_nn,
+       xlim = xlims,
+       main = paste0("Haplotype bifurcation — NN (pos ", focal_pos, ")"),
+       col = c("steelblue", "coral"))
+  plot(furc_dd,
+       xlim = xlims,
+       main = paste0("Haplotype bifurcation — DD (pos ", focal_pos, ")"),
+       col = c("steelblue", "coral"))
+  par(mfrow = c(1, 1))
+
+} else {
+  cat("Focal position not found in one or both filtered datasets.\n")
+  cat("Trying the next-best hit instead...\n")
+
+  # Try second-best hit
+  for (i in 2:10) {
+    alt_hit <- xpehh_tbl %>% arrange(desc(LOGPVALUE)) %>% slice(i)
+    focal_pos_alt <- alt_hit$POSITION
+    marker_nn <- which(nn_hh_f@positions == focal_pos_alt)
+    marker_dd <- which(dd_hh_f@positions == focal_pos_alt)
+    if (length(marker_nn) > 0 & length(marker_dd) > 0) {
+      cat("Using hit #", i, "at position", focal_pos_alt, "\n")
+      focal_pos <- focal_pos_alt
+
+      furc_nn <- calc_furcation(nn_hh_f, mrk = marker_nn)
+      furc_dd <- calc_furcation(dd_hh_f, mrk = marker_dd)
+
+      window <- 500000
+      xlims <- c(focal_pos - window, focal_pos + window)
+
+      par(mfrow = c(2, 1))
+      plot(furc_nn,
+           xlim = xlims,
+           main = paste0("Haplotype bifurcation — NN (pos ", focal_pos, ")"),
+           col = c("steelblue", "coral"))
+      plot(furc_dd,
+           xlim = xlims,
+           main = paste0("Haplotype bifurcation — DD (pos ", focal_pos, ")"),
+           col = c("steelblue", "coral"))
+      par(mfrow = c(1, 1))
+      break
+    }
+  }
+}
+```
+
+## Haplotype length around top hit
+
+```{r haplen, fig.height=8}
+if (exists("furc_nn") & exists("furc_dd")) {
+  haplen_nn <- calc_haplen(furc_nn)
+  haplen_dd <- calc_haplen(furc_dd)
+
+  par(mfrow = c(2, 1))
+  plot(haplen_nn, main = paste0("Haplotype lengths — NN (pos ", focal_pos, ")"),
+       col = c(alpha("steelblue", 0.5), alpha("coral", 0.5)))
+  plot(haplen_dd, main = paste0("Haplotype lengths — DD (pos ", focal_pos, ")"),
+       col = c(alpha("steelblue", 0.5), alpha("coral", 0.5)))
+  par(mfrow = c(1, 1))
+}
+```
+
+# Sliding Window Summary
+
+To visualise broad genomic patterns, we can compute windowed averages of |iHS|
+and XP-EHH.
+
+```{r windowed-summary, fig.height=16}
+window_size <- 100000  # 100 kb windows
+
+# Combined iHS windows
+all_ihs_tbl <- all_ihs$ihs %>%
+  as_tibble() %>%
+  filter(!is.na(IHS)) %>%
+  mutate(window = floor(POSITION / window_size) * window_size) %>%
+  group_by(window) %>%
+  summarise(
+    mean_abs_iHS = mean(abs(IHS), na.rm = TRUE),
+    max_logp = max(LOGPVALUE, na.rm = TRUE),
+    n_snps = n(),
+    .groups = "drop"
+  )
+
+# NN iHS windows
+nn_ihs_tbl <- nn_ihs$ihs %>%
+  as_tibble() %>%
+  filter(!is.na(IHS)) %>%
+  mutate(window = floor(POSITION / window_size) * window_size) %>%
+  group_by(window) %>%
+  summarise(
+    mean_abs_iHS = mean(abs(IHS), na.rm = TRUE),
+    max_logp = max(LOGPVALUE, na.rm = TRUE),
+    n_snps = n(),
+    .groups = "drop"
+  )
+
+# DD iHS windows
+dd_ihs_tbl <- dd_ihs$ihs %>%
+  as_tibble() %>%
+  filter(!is.na(IHS)) %>%
+  mutate(window = floor(POSITION / window_size) * window_size) %>%
+  group_by(window) %>%
+  summarise(
+    mean_abs_iHS = mean(abs(IHS), na.rm = TRUE),
+    max_logp = max(LOGPVALUE, na.rm = TRUE),
+    n_snps = n(),
+    .groups = "drop"
+  )
+
+# XP-EHH windows
+xpehh_win <- xpehh_tbl %>%
+  filter(!is.na(XPEHH_DD_NN)) %>%
+  mutate(window = floor(POSITION / window_size) * window_size) %>%
+  group_by(window) %>%
+  summarise(
+    mean_xpehh = mean(XPEHH_DD_NN, na.rm = TRUE),
+    max_logp = max(LOGPVALUE, na.rm = TRUE),
+    n_snps = n(),
+    .groups = "drop"
+  )
+
+# Plot
+par(mfrow = c(4, 1), mar = c(4, 4, 3, 1))
+
+plot(all_ihs_tbl$window / 1e6, all_ihs_tbl$mean_abs_iHS,
+     type = "l", col = "grey30", lwd = 1.5,
+     xlab = "Position (Mb)", ylab = "Mean |iHS|",
+     main = "Windowed |iHS| — All samples combined (100 kb windows)")
+abline(h = 2, col = "red", lty = 2)
+
+plot(nn_ihs_tbl$window / 1e6, nn_ihs_tbl$mean_abs_iHS,
+     type = "l", col = "steelblue", lwd = 1.5,
+     xlab = "Position (Mb)", ylab = "Mean |iHS|",
+     main = "Windowed |iHS| — NN population (100 kb windows)")
+abline(h = 2, col = "red", lty = 2)
+
+plot(dd_ihs_tbl$window / 1e6, dd_ihs_tbl$mean_abs_iHS,
+     type = "l", col = "darkorange", lwd = 1.5,
+     xlab = "Position (Mb)", ylab = "Mean |iHS|",
+     main = "Windowed |iHS| — DD population (100 kb windows)")
+abline(h = 2, col = "red", lty = 2)
+
+plot(xpehh_win$window / 1e6, xpehh_win$mean_xpehh,
+     type = "l", col = "purple", lwd = 1.5,
+     xlab = "Position (Mb)", ylab = "Mean XP-EHH",
+     main = "Windowed XP-EHH — DD vs NN (100 kb windows)")
+abline(h = 0, col = "grey40")
+abline(h = c(-2, 2), col = "red", lty = 2)
+
+par(mfrow = c(1, 1))
+```
+
+# Bifurcation Diagrams at iHS Peak Regions
+
+Bifurcation diagrams show how haplotypes branch away from a focal SNP.
+Under selection, one haplotype extends much further than the other, indicating
+a long intact haplotype that has swept to high frequency.
+
+We plot bifurcation diagrams for each peak in the windowed |iHS| plots:
+
+- **Combined (ALL)**: 2 peaks (~11.4 Mb, ~12.1 Mb)
+- **NN**: 5 peaks (~5.7, ~11.0, ~11.9, ~17.4, ~21.5 Mb)
+- **DD**: 1 peak (~11.4 Mb)
+
+```{r ihs-peak-bifurcation-setup}
+# Helper function: find the SNP with highest |iHS| in a window, then plot bifurcation
+plot_bifurcation_at_peak <- function(hh_obj, ihs_result, peak_window,
+                                     pop_label, pop_col, win_size = 100000,
+                                     flank = 500000) {
+  # Find best SNP in window
+  peak_snps <- ihs_result$ihs %>%
+    as_tibble() %>%
+    filter(POSITION >= peak_window, POSITION < peak_window + win_size,
+           !is.na(IHS)) %>%
+    arrange(desc(abs(IHS))) %>%
+    slice(1)
+
+  if (nrow(peak_snps) == 0) {
+    cat(sprintf("  No SNPs found in window %.1f Mb for %s\n", peak_window / 1e6, pop_label))
+    return(invisible(NULL))
+  }
+
+  focal <- peak_snps$POSITION[1]
+  mrk_idx <- which(hh_obj@positions == focal)
+
+  if (length(mrk_idx) == 0) {
+    cat(sprintf("  Focal SNP %d not in haplohh object for %s\n", focal, pop_label))
+    return(invisible(NULL))
+  }
+
+  furc <- calc_furcation(hh_obj, mrk = mrk_idx)
+  xlims <- c(focal - flank, focal + flank)
+
+  plot(furc, xlim = xlims,
+       main = sprintf("%s — bifurcation at %s (%.3f Mb, |iHS|=%.2f)",
+                      pop_label, format(focal, big.mark = ","),
+                      focal / 1e6, abs(peak_snps$IHS[1])),
+       col = c(pop_col, "coral"))
+
+  return(invisible(list(furc = furc, focal = focal, ihs = peak_snps$IHS[1])))
+}
+```
+
+## Combined (ALL) iHS peaks {.tabset}
+
+### Peak 1: ~11.4 Mb
+
+```{r bifurc-all-peak1, fig.height=5}
+plot_bifurcation_at_peak(all_hh_f, all_ihs, 11400000, "ALL", "grey30")
+```
+
+### Peak 2: ~12.1 Mb
+
+```{r bifurc-all-peak2, fig.height=5}
+plot_bifurcation_at_peak(all_hh_f, all_ihs, 12100000, "ALL", "grey30")
+```
+
+## NN iHS peaks {.tabset}
+
+### Peak 1: ~5.7 Mb
+
+```{r bifurc-nn-peak1, fig.height=5}
+plot_bifurcation_at_peak(nn_hh_f, nn_ihs, 5700000, "NN", "steelblue")
+```
+
+### Peak 2: ~11.0 Mb
+
+```{r bifurc-nn-peak2, fig.height=5}
+plot_bifurcation_at_peak(nn_hh_f, nn_ihs, 11000000, "NN", "steelblue")
+```
+
+### Peak 3: ~11.9 Mb
+
+```{r bifurc-nn-peak3, fig.height=5}
+plot_bifurcation_at_peak(nn_hh_f, nn_ihs, 11900000, "NN", "steelblue")
+```
+
+### Peak 4: ~17.4 Mb
+
+```{r bifurc-nn-peak4, fig.height=5}
+plot_bifurcation_at_peak(nn_hh_f, nn_ihs, 17400000, "NN", "steelblue")
+```
+
+### Peak 5: ~21.5 Mb
+
+```{r bifurc-nn-peak5, fig.height=5}
+plot_bifurcation_at_peak(nn_hh_f, nn_ihs, 21500000, "NN", "steelblue")
+```
+
+## DD iHS peak
+
+```{r bifurc-dd-peak1, fig.height=5}
+plot_bifurcation_at_peak(dd_hh_f, dd_ihs, 11400000, "DD", "darkorange")
+```
+
+# Candidate Region Summary
+
+## Identify outlier regions
+
+```{r candidate-regions}
+# Define outlier thresholds
+ihs_logp_thresh <- 4  # -log10(p) > 4
+xpehh_logp_thresh <- 4
+
+# Combined iHS outlier regions
+all_outliers <- all_ihs$ihs %>%
+  as_tibble() %>%
+  filter(LOGPVALUE > ihs_logp_thresh) %>%
+  arrange(POSITION) %>%
+  mutate(POSITION_Mb = round(POSITION / 1e6, 3))
+
+cat("=== Combined iHS outliers (-log10(p) >", ihs_logp_thresh, ") ===\n")
+cat("Number of outlier SNPs:", nrow(all_outliers), "\n\n")
+if (nrow(all_outliers) > 0) {
+  all_outliers <- all_outliers %>%
+    mutate(gap = c(0, diff(POSITION)) > 200000,
+           region = cumsum(gap) + 1)
+  all_regions <- all_outliers %>%
+    group_by(region) %>%
+    summarise(
+      start_Mb = round(min(POSITION) / 1e6, 3),
+      end_Mb   = round(max(POSITION) / 1e6, 3),
+      n_snps   = n(),
+      max_logp = round(max(LOGPVALUE), 2),
+      .groups  = "drop"
+    )
+  print(all_regions)
+}
+
+# NN iHS outlier regions
+nn_outliers <- nn_ihs$ihs %>%
+  as_tibble() %>%
+  filter(LOGPVALUE > ihs_logp_thresh) %>%
+  arrange(POSITION) %>%
+  mutate(POSITION_Mb = round(POSITION / 1e6, 3))
+
+cat("\n=== NN iHS outliers (-log10(p) >", ihs_logp_thresh, ") ===\n")
+cat("Number of outlier SNPs:", nrow(nn_outliers), "\n\n")
+if (nrow(nn_outliers) > 0) {
+  # Cluster into regions (SNPs within 200kb of each other)
+  nn_outliers <- nn_outliers %>%
+    mutate(gap = c(0, diff(POSITION)) > 200000,
+           region = cumsum(gap) + 1)
+  nn_regions <- nn_outliers %>%
+    group_by(region) %>%
+    summarise(
+      start_Mb = round(min(POSITION) / 1e6, 3),
+      end_Mb   = round(max(POSITION) / 1e6, 3),
+      n_snps   = n(),
+      max_logp = round(max(LOGPVALUE), 2),
+      .groups  = "drop"
+    )
+  print(nn_regions)
+}
+
+# DD iHS outlier regions
+dd_outliers <- dd_ihs$ihs %>%
+  as_tibble() %>%
+  filter(LOGPVALUE > ihs_logp_thresh) %>%
+  arrange(POSITION) %>%
+  mutate(POSITION_Mb = round(POSITION / 1e6, 3))
+
+cat("\n=== DD iHS outliers (-log10(p) >", ihs_logp_thresh, ") ===\n")
+cat("Number of outlier SNPs:", nrow(dd_outliers), "\n\n")
+if (nrow(dd_outliers) > 0) {
+  dd_outliers <- dd_outliers %>%
+    mutate(gap = c(0, diff(POSITION)) > 200000,
+           region = cumsum(gap) + 1)
+  dd_regions <- dd_outliers %>%
+    group_by(region) %>%
+    summarise(
+      start_Mb = round(min(POSITION) / 1e6, 3),
+      end_Mb   = round(max(POSITION) / 1e6, 3),
+      n_snps   = n(),
+      max_logp = round(max(LOGPVALUE), 2),
+      .groups  = "drop"
+    )
+  print(dd_regions)
+}
+
+# XP-EHH outlier regions
+xpehh_outliers <- xpehh_tbl %>%
+  filter(LOGPVALUE > xpehh_logp_thresh) %>%
+  arrange(POSITION)
+
+cat("\n=== XP-EHH outliers (-log10(p) >", xpehh_logp_thresh, ") ===\n")
+cat("Number of outlier SNPs:", nrow(xpehh_outliers), "\n\n")
+if (nrow(xpehh_outliers) > 0) {
+  xpehh_outliers <- xpehh_outliers %>%
+    mutate(gap = c(0, diff(POSITION)) > 200000,
+           region = cumsum(gap) + 1)
+  xpehh_regions <- xpehh_outliers %>%
+    group_by(region) %>%
+    summarise(
+      start_Mb  = round(min(POSITION) / 1e6, 3),
+      end_Mb    = round(max(POSITION) / 1e6, 3),
+      n_snps    = n(),
+      max_logp  = round(max(LOGPVALUE), 2),
+      mean_xpehh = round(mean(XPEHH_DD_NN), 2),
+      direction = ifelse(mean(XPEHH_DD_NN) > 0, "Selection in DD", "Selection in NN"),
+      .groups   = "drop"
+    )
+  print(xpehh_regions)
+}
+```
+
+# Export Results
+
+```{r export}
+# iHS results — combined and per-population
+write_tsv(all_ihs$ihs %>% as_tibble(), file.path(out_dir, "chr3_ALL_iHS.tsv"))
+write_tsv(nn_ihs$ihs %>% as_tibble(), file.path(out_dir, "chr3_NN_iHS.tsv"))
+write_tsv(dd_ihs$ihs %>% as_tibble(), file.path(out_dir, "chr3_DD_iHS.tsv"))
+
+# XP-EHH results
+write_tsv(xpehh_tbl, file.path(out_dir, "chr3_XPEHH_DD_vs_NN.tsv"))
+
+# Rsb results
+write_tsv(rsb %>% as_tibble(), file.path(out_dir, "chr3_Rsb_DD_vs_NN.tsv"))
+
+cat("Results exported to:", out_dir, "\n")
+cat("Files:\n")
+cat("  - chr3_ALL_iHS.tsv (combined NN + DD)\n")
+cat("  - chr3_NN_iHS.tsv\n")
+cat("  - chr3_DD_iHS.tsv\n")
+cat("  - chr3_XPEHH_DD_vs_NN.tsv\n")
+cat("  - chr3_Rsb_DD_vs_NN.tsv\n")
+```
+
+# Session Info
+
+```{r session-info}
+sessionInfo()
+```

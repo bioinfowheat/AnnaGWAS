@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>GWAS Pipeline v2 — P33459 Megera_2</title>
+    <title>GWAS Pipeline v2 — YF-4363 / XI-4103 (snpseq01427)</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; max-width: 1200px; }
         h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
@@ -32,12 +32,14 @@
         .metrics-table { font-size: 0.9em; }
         .metrics-table th { background-color: #9b59b6; }
         .change { background-color: #fff3e0; padding: 3px 8px; border-radius: 3px; font-weight: bold; color: #e65100; }
+        .nn { background-color: #e8f5e9; font-weight: bold; }
+        .dd { background-color: #fce4ec; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1>GWAS Pipeline v2 — P33459 Megera_2</h1>
+    <h1>GWAS Pipeline v2 &mdash; YF-4363 / XI-4103 (snpseq01427)</h1>
     <p><em>Snakemake workflow: FASTQ &rarr; Variant Calling &rarr; GWAS Association</em></p>
-    <p><strong>Project:</strong> P33459 / K.Gotthard_24_01 (Megera_2) &nbsp;|&nbsp;
+    <p><strong>Project:</strong> YF-4363 / XI-4103 (delivery: snpseq01427) &nbsp;|&nbsp;
        <strong>Organism:</strong> <em>Pararge aegeria</em> (ilParAegt1.1) &nbsp;|&nbsp;
        <strong>Generated:</strong> 2026-03-04</p>
 
@@ -46,35 +48,139 @@
     <!-- ================================================================ -->
     <h2 id="data">1. Data Overview</h2>
     <div class="data-box">
-        <h3>Sequencing Summary</h3>
+        <h3>Sequencing &amp; Demultiplexing Summary</h3>
         <table>
             <tr><th>Parameter</th><th>Value</th></tr>
-            <tr><td>NGI Project</td><td>P33459 / K.Gotthard_24_01</td></tr>
+            <tr><td>NGI Project</td><td>YF-4363 / XI-4103</td></tr>
+            <tr><td>Delivery</td><td>snpseq01427 (Desktop)</td></tr>
+            <tr><td>Demultiplexing</td><td>pheniqs 2.1.0</td></tr>
+            <tr><td>Pools</td><td>6 pools (YF-4363-Pool-1 through Pool-6)</td></tr>
+            <tr><td>Total samples (available)</td><td>94 (48 NN + 46 DD), across cages C1, C2, C3</td></tr>
+            <tr><td>Samples for this run</td><td><strong>10 (5 NN + 5 DD)</strong></td></tr>
             <tr><td>Application</td><td>Target re-sequencing (paired-end)</td></tr>
-            <tr><td>Platform</td><td>NovaSeqXPlus, 2&times;151 bp, 25B flowcell</td></tr>
-            <tr><td>Samples</td><td>94 total (5 groups: K, L, F, Ku, G)</td></tr>
-            <tr><td>Read depth</td><td>12.8M &ndash; 60.0M reads/sample</td></tr>
-            <tr><td>Q30</td><td>&gt; 90% all samples</td></tr>
-            <tr><td>Library prep</td><td>Illumina DNA, avg. fragment size 600 bp</td></tr>
-            <tr><td>Flowcell</td><td>B22LM5YLT4, Lane 6</td></tr>
+            <tr><td>Library prep</td><td>Demultiplexed with inline barcodes (6-mer)</td></tr>
         </table>
 
         <h3>Sample Groups</h3>
         <table>
-            <tr><th>Group</th><th>Prefix</th><th>Count</th><th>NGI IDs</th></tr>
-            <tr><td>K</td><td>K1&ndash;K25</td><td>24</td><td>P33459_101 &ndash; P33459_124</td></tr>
-            <tr><td>L</td><td>L1&ndash;L21</td><td>20</td><td>P33459_125 &ndash; P33459_144</td></tr>
-            <tr><td>F</td><td>F1&ndash;F6</td><td>6</td><td>P33459_145 &ndash; P33459_150</td></tr>
-            <tr><td>Ku</td><td>Ku1&ndash;Ku18</td><td>18</td><td>P33459_151 &ndash; P33459_168</td></tr>
-            <tr><td>G</td><td>G1&ndash;G26</td><td>26</td><td>P33459_169 &ndash; P33459_194</td></tr>
+            <tr><th>Group</th><th>Code</th><th>Meaning</th><th>Total Available</th><th>Selected</th></tr>
+            <tr>
+                <td class="nn">NN</td>
+                <td>NN</td>
+                <td>Non-diapause</td>
+                <td>48</td>
+                <td>5</td>
+            </tr>
+            <tr>
+                <td class="dd">DD</td>
+                <td>DD</td>
+                <td>Diapause</td>
+                <td>46</td>
+                <td>5</td>
+            </tr>
         </table>
+
+        <h3>Selected Samples (10 total)</h3>
+        <table>
+            <tr>
+                <th>Sample ID</th>
+                <th>User ID</th>
+                <th>Group</th>
+                <th>Cage</th>
+                <th>Pool</th>
+                <th>Barcode</th>
+            </tr>
+            <tr>
+                <td>nr1</td>
+                <td>C1-NN-27</td>
+                <td class="nn">NN</td>
+                <td>C1</td>
+                <td>Pool-3</td>
+                <td>ACTTGA</td>
+            </tr>
+            <tr>
+                <td>nr2</td>
+                <td>C1-NN-23</td>
+                <td class="nn">NN</td>
+                <td>C1</td>
+                <td>Pool-2</td>
+                <td>CAAAAG</td>
+            </tr>
+            <tr>
+                <td>nr3</td>
+                <td>C1-NN-26</td>
+                <td class="nn">NN</td>
+                <td>C1</td>
+                <td>Pool-2</td>
+                <td>ATGAGC</td>
+            </tr>
+            <tr>
+                <td>nr4</td>
+                <td>C1-NN-29</td>
+                <td class="nn">NN</td>
+                <td>C1</td>
+                <td>Pool-5</td>
+                <td>GATGCT</td>
+            </tr>
+            <tr>
+                <td>nr5</td>
+                <td>C2-NN-45</td>
+                <td class="nn">NN</td>
+                <td>C2</td>
+                <td>Pool-2</td>
+                <td>ATCACG</td>
+            </tr>
+            <tr>
+                <td>nr13</td>
+                <td>C1-DD-9</td>
+                <td class="dd">DD</td>
+                <td>C1</td>
+                <td>Pool-2</td>
+                <td>CTTGTA</td>
+            </tr>
+            <tr>
+                <td>nr14</td>
+                <td>C1-DD-11</td>
+                <td class="dd">DD</td>
+                <td>C1</td>
+                <td>Pool-2</td>
+                <td>GATCAG</td>
+            </tr>
+            <tr>
+                <td>nr15</td>
+                <td>C1-DD-13</td>
+                <td class="dd">DD</td>
+                <td>C1</td>
+                <td>Pool-4</td>
+                <td>ATCACG</td>
+            </tr>
+            <tr>
+                <td>nr16</td>
+                <td>C1-DD-18</td>
+                <td class="dd">DD</td>
+                <td>C1</td>
+                <td>Pool-3</td>
+                <td>GGCTAC</td>
+            </tr>
+            <tr>
+                <td>nr17</td>
+                <td>C1-DD-23</td>
+                <td class="dd">DD</td>
+                <td>C1</td>
+                <td>Pool-3</td>
+                <td>CAGATC</td>
+            </tr>
+        </table>
+
+        <div class="warning">
+            <p><strong>Excluded:</strong> All files with "undetermined" in the name are excluded from analysis.</p>
+        </div>
 
         <h3>Reference Genome</h3>
         <table>
             <tr><th>Parameter</th><th>Value</th></tr>
             <tr><td>Species</td><td><em>Pararge aegeria</em> (Speckled Wood butterfly)</td></tr>
             <tr><td>Assembly</td><td>ilParAegt1.1 (GCF_905163445.1)</td></tr>
-            <tr><td>Source</td><td><a href="https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/905/163/445/GCF_905163445.1_ilParAegt1.1/">NCBI FTP</a></td></tr>
             <tr><td>File used</td><td><code>GCF_905163445.1_ilParAegt1.1_genomic.<span class="change">edited</span>.fna</code></td></tr>
             <tr><td>Header format</td><td>Chromosomes: 1&ndash;27, W, Z &nbsp;|&nbsp; Scaffolds: NW_* accessions</td></tr>
             <tr><td>Total size</td><td>516,571,003 bp (70 sequences)</td></tr>
@@ -84,19 +190,18 @@
         </table>
 
         <h3>FASTQ File Naming Convention</h3>
-        <p>NGI delivers files as:</p>
+        <p>Data was demultiplexed with pheniqs 2.1.0 into per-pool folders. File naming:</p>
         <pre>
-P33459_{ngi_num}/02-FASTQ/20250124_LH00202_0188_B22LM5YLT4/
-    P33459_{ngi_num}_S{n}_L006_R1_001.fastq.gz
-    P33459_{ngi_num}_S{n}_L006_R2_001.fastq.gz</pre>
+snpseq01427/files/YF-4363/demultiplexed_pheniqs/
+  YF-4363-Pool-{pool}/
+    YF-4363-Pool-{pool}_YF-4363_{sampleNr}-{cage}-{group}-{id}.v1_{barcode}_R1.fastq.gz
+    YF-4363-Pool-{pool}_YF-4363_{sampleNr}-{cage}-{group}-{id}.v1_{barcode}_R2.fastq.gz</pre>
+        <p>Example: <code>YF-4363-Pool-3_YF-4363_nr1-C1-NN-27.v1_ACTTGA_R1.fastq.gz</code></p>
         <p>The pipeline uses a <code>samples.tsv</code> file to map sample names to their R1/R2 file paths.</p>
 
-        <h3>Test Run: 2 Samples</h3>
-        <table>
-            <tr><th>NGI ID</th><th>User ID</th><th>Group</th><th>Mreads</th><th>Rationale</th></tr>
-            <tr><td>P33459_101</td><td>K1</td><td>K</td><td>58.8M</td><td>High-depth sample</td></tr>
-            <tr><td>P33459_125</td><td>L1</td><td>L</td><td>29.6M</td><td>Lower-depth sample, different group</td></tr>
-        </table>
+        <h3>FASTQ Data Location</h3>
+        <pre>
+/Users/stockholmbutterflylab/Desktop/snpseq01427/files/YF-4363/demultiplexed_pheniqs/</pre>
     </div>
 
     <!-- ================================================================ -->
@@ -111,11 +216,11 @@ P33459_{ngi_num}/02-FASTQ/20250124_LH00202_0188_B22LM5YLT4/
 # Dry run
 snakemake -n
 
-# Execute (2 test samples, local Mac — 22 of 28 cores)
-snakemake --cores 22 --use-conda --conda-frontend micromamba
+# Execute (10 samples, local Mac — 24 of 28 cores)
+snakemake --cores 24 --use-conda --conda-frontend mamba
 
 # Scale to all 94 samples: edit samples.tsv, then re-run
-snakemake --cores 22 --use-conda --conda-frontend micromamba</pre>
+snakemake --cores 24 --use-conda --conda-frontend mamba</pre>
     </div>
 
     <div class="multiqc">
@@ -137,8 +242,8 @@ snakemake --cores 22 --use-conda --conda-frontend micromamba</pre>
             <tr>
                 <td><span class="checkpoint-badge">QC2</span></td>
                 <td>Alignment</td>
-                <td>samtools stats/flagstat/idxstats</td>
-                <td>Mapping rate, coverage, duplicates</td>
+                <td>samtools stats/flagstat/idxstats, Picard MarkDuplicates</td>
+                <td>Mapping rate, coverage, PCR/optical duplicates, library complexity</td>
             </tr>
             <tr>
                 <td><span class="checkpoint-badge">QC3</span></td>
@@ -159,7 +264,7 @@ snakemake --cores 22 --use-conda --conda-frontend micromamba</pre>
     <div style="margin: 30px 0;">
         <svg viewBox="0 0 1000 1150" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
             <rect width="1000" height="1150" fill="#f8f9fa"/>
-            <text x="500" y="35" text-anchor="middle" font-size="20" font-weight="bold" fill="#2c3e50">P33459 GWAS Pipeline (Snakemake + micromamba, 22 cores)</text>
+            <text x="500" y="35" text-anchor="middle" font-size="20" font-weight="bold" fill="#2c3e50">YF-4363 GWAS Pipeline (Snakemake + micromamba, 24 cores)</text>
 
             <!-- Arrow marker -->
             <defs>
@@ -170,16 +275,16 @@ snakemake --cores 22 --use-conda --conda-frontend micromamba</pre>
 
             <!-- Input -->
             <rect x="300" y="55" width="400" height="55" rx="8" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
-            <text x="500" y="77" text-anchor="middle" font-size="13" font-weight="bold" fill="white">INPUT: 94 samples (2 for test run)</text>
+            <text x="500" y="77" text-anchor="middle" font-size="13" font-weight="bold" fill="white">INPUT: 10 samples (5 NN + 5 DD)</text>
             <text x="500" y="97" text-anchor="middle" font-size="10" fill="#d6eaf8">P. aegeria ilParAegt1.1 edited genome | samples.tsv | phenotypes.txt</text>
 
             <path d="M500 110 L500 135" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrow)"/>
 
             <!-- Phase 1 -->
             <rect x="300" y="140" width="280" height="70" rx="8" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
-            <text x="440" y="165" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 1: Read QC &amp; Trimming</text>
-            <text x="440" y="185" text-anchor="middle" font-size="11" fill="white">FastQC | fastp</text>
-            <text x="440" y="200" text-anchor="middle" font-size="9" fill="#ffeaa7">Adapter removal, quality filtering (Q20, len&ge;50)</text>
+            <text x="440" y="162" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 1: Read QC &amp; Trimming</text>
+            <text x="440" y="180" text-anchor="middle" font-size="11" fill="white">FastQC | fastp</text>
+            <text x="440" y="195" text-anchor="middle" font-size="9" fill="#ffeaa7">Adapter removal, quality filtering (Q20, len&ge;50)</text>
 
             <rect x="620" y="145" width="160" height="60" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
             <text x="700" y="170" text-anchor="middle" font-size="12" font-weight="bold" fill="white">QC CHECKPOINT 1</text>
@@ -191,8 +296,8 @@ snakemake --cores 22 --use-conda --conda-frontend micromamba</pre>
             <!-- Phase 2-3 -->
             <rect x="300" y="245" width="280" height="90" rx="8" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
             <text x="440" y="270" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 2-3: Alignment</text>
-            <text x="440" y="290" text-anchor="middle" font-size="11" fill="white">BWA-MEM2 | samtools</text>
-            <text x="440" y="307" text-anchor="middle" font-size="9" fill="#ffeaa7">Align &rarr; sort &rarr; mark duplicates &rarr; index</text>
+            <text x="440" y="290" text-anchor="middle" font-size="11" fill="white">BWA-MEM2 | samtools | Picard</text>
+            <text x="440" y="307" text-anchor="middle" font-size="9" fill="#ffeaa7">Align|sort (piped) &rarr; Picard MarkDuplicates &rarr; index</text>
             <text x="440" y="322" text-anchor="middle" font-size="9" fill="#ffeaa7">Generate stats, flagstat, idxstats</text>
 
             <rect x="620" y="255" width="160" height="60" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
@@ -206,7 +311,7 @@ snakemake --cores 22 --use-conda --conda-frontend micromamba</pre>
             <rect x="300" y="370" width="280" height="90" rx="8" fill="#27ae60" stroke="#1e8449" stroke-width="2"/>
             <text x="440" y="395" text-anchor="middle" font-size="13" font-weight="bold" fill="white">PHASE 4-5: Variant Calling</text>
             <text x="440" y="415" text-anchor="middle" font-size="11" fill="white">bcftools mpileup/call</text>
-            <text x="440" y="432" text-anchor="middle" font-size="9" fill="#a9dfbf">Per-chromosome calling across all samples</text>
+            <text x="440" y="432" text-anchor="middle" font-size="9" fill="#a9dfbf">Per-chromosome calling across all 10 samples</text>
             <text x="440" y="447" text-anchor="middle" font-size="9" fill="#a9dfbf">Filter: QUAL&gt;20, biallelic SNPs, normalize</text>
 
             <rect x="620" y="380" width="160" height="60" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
@@ -278,7 +383,6 @@ snakemake --cores 22 --use-conda --conda-frontend micromamba</pre>
             <li><a href="#phase8">8. Phase 8-9: GWAS Association &amp; Visualization</a></li>
             <li><a href="#qc-summary">9. QC Decision Points</a></li>
             <li><a href="#software">10. Software Summary</a></li>
-            <li><a href="#changes">11. Changes from v1</a></li>
         </ul>
     </div>
 
@@ -292,8 +396,7 @@ snakemake --cores 22 --use-conda --conda-frontend micromamba</pre>
 Annas_GWAS/
 ├── Snakefile                    # Main workflow
 ├── config.yaml                  # Configuration
-├── samples.tsv                  # Sample &rarr; FASTQ path mapping
-├── multiqc_config.yaml          # MultiQC report settings
+├── samples.tsv                  # Sample &rarr; FASTQ path mapping (10 samples)
 ├── envs/                        # micromamba environment definitions
 │   ├── qc.yaml                  #   FastQC, fastp, MultiQC
 │   ├── align.yaml               #   BWA-MEM2, samtools
@@ -311,11 +414,20 @@ Annas_GWAS/
 └── data/
     └── phenotypes.txt           # User-provided phenotype file</pre>
 
-        <h3>samples.tsv (2-sample test)</h3>
+        <h3>samples.tsv (10-sample run: 5 NN + 5 DD)</h3>
         <pre>
-sample         user_id  group  r1                                               r2
-P33459_101     K1       K      /path/to/P33459_101_S1_L006_R1_001.fastq.gz      /path/to/P33459_101_S1_L006_R2_001.fastq.gz
-P33459_125     L1       L      /path/to/P33459_125_S25_L006_R1_001.fastq.gz     /path/to/P33459_125_S25_L006_R2_001.fastq.gz</pre>
+sample  user_id     group  r1                                         r2
+nr1     C1-NN-27    NN     .../Pool-3/..._nr1-C1-NN-27..._R1.fq.gz   ...R2...
+nr2     C1-NN-23    NN     .../Pool-2/..._nr2-C1-NN-23..._R1.fq.gz   ...R2...
+nr3     C1-NN-26    NN     .../Pool-2/..._nr3-C1-NN-26..._R1.fq.gz   ...R2...
+nr4     C1-NN-29    NN     .../Pool-5/..._nr4-C1-NN-29..._R1.fq.gz   ...R2...
+nr5     C2-NN-45    NN     .../Pool-2/..._nr5-C2-NN-45..._R1.fq.gz   ...R2...
+nr13    C1-DD-9     DD     .../Pool-2/..._nr13-C1-DD-9..._R1.fq.gz   ...R2...
+nr14    C1-DD-11    DD     .../Pool-2/..._nr14-C1-DD-11..._R1.fq.gz  ...R2...
+nr15    C1-DD-13    DD     .../Pool-4/..._nr15-C1-DD-13..._R1.fq.gz  ...R2...
+nr16    C1-DD-18    DD     .../Pool-3/..._nr16-C1-DD-18..._R1.fq.gz  ...R2...
+nr17    C1-DD-23    DD     .../Pool-3/..._nr17-C1-DD-23..._R1.fq.gz  ...R2...</pre>
+        <p>Full paths point to: <code>/Users/stockholmbutterflylab/Desktop/snpseq01427/files/YF-4363/demultiplexed_pheniqs/</code></p>
         <p>To run all 94 samples: add all rows to <code>samples.tsv</code> and re-run Snakemake.</p>
 
         <h3>config.yaml</h3>
@@ -338,19 +450,16 @@ geno_threshold: 0.1
 hwe_threshold: 1e-6
 mind_threshold: 0.1
 
-# Resources (local Mac: 28 cores, ~100 GB RAM — using 80%)
-threads: 22</pre>
+# Resources (local Mac: 28 cores, ~90 GB RAM — using ~85%)
+threads: 24</pre>
 
         <h3>Running the Pipeline</h3>
         <pre>
-# Install micromamba (if not installed)
-curl -Ls https://micro.mamba.pm/api/micromamba/osx-arm64/latest | tar -xvj bin/micromamba
-
 # Dry run (see what will execute)
 snakemake -n
 
-# Run with micromamba for environment management (22 of 28 cores)
-snakemake --cores 22 --use-conda --conda-frontend micromamba
+# Run with micromamba for environment management (24 of 28 cores)
+snakemake --cores 24 --use-conda --conda-frontend mamba
 
 # Generate Snakemake report
 snakemake --report report.html</pre>
@@ -432,12 +541,12 @@ rule multiqc_reads:
             <tr>
                 <td>Sort</td>
                 <td>samtools sort</td>
-                <td>Coordinate sort</td>
+                <td>Coordinate sort (piped from BWA-MEM2, <code>-m 10G</code>)</td>
             </tr>
             <tr>
                 <td>Mark duplicates</td>
-                <td>samtools markdup</td>
-                <td>Marks optical &amp; PCR duplicates, outputs metrics</td>
+                <td>Picard MarkDuplicates</td>
+                <td>Marks optical &amp; PCR duplicates; rich metrics for MultiQC (library complexity, duplication breakdown)</td>
             </tr>
             <tr>
                 <td>Index</td>
@@ -453,26 +562,17 @@ rule multiqc_reads:
 
         <h3>Snakemake Rules</h3>
         <pre>
-rule bwa_mem2_index:
-    # Index the edited reference genome
-
-rule bwa_mem2_align:
-    # Align trimmed reads &rarr; unsorted BAM (temp)
-
-rule sort_bam:
-    # Coordinate sort &rarr; sorted BAM (temp)
-
-rule mark_duplicates:
-    # samtools markdup &rarr; dedup BAM + metrics
-
-rule index_bam:
-    # Create .bai index
-
-rule alignment_stats:
-    # samtools stats + flagstat</pre>
+rule bwa_mem2_index:    # Index the edited reference genome
+rule bwa_mem2_align:    # Align &rarr; sort in one piped step (7 threads bwa-mem2 | samtools sort -m 10G)
+                        # 3 samples align concurrently (3 &times; 7 = 21 cores + samtools overhead)
+                        # Output: sorted BAM (temp)
+rule mark_duplicates:   # Picard MarkDuplicates &rarr; dedup BAM + detailed metrics
+rule index_bam:         # samtools index &rarr; .bai
+rule alignment_stats:   # samtools stats + flagstat + idxstats</pre>
 
         <div class="tip">
-            <p><strong>Note:</strong> The <code>unsorted.bam</code> and <code>sorted.bam</code> files are marked as <code>temp()</code> in Snakemake and will be automatically deleted once downstream rules complete, saving disk space.</p>
+            <p><strong>Performance:</strong> BWA-MEM2 output is piped directly to <code>samtools sort</code> &mdash; no intermediate unsorted BAM touches disk. With 24 cores and 7 threads per alignment, 3 samples align concurrently.</p>
+            <p><strong>Disk space:</strong> The <code>sorted.bam</code> files are marked as <code>temp()</code> in Snakemake and are automatically deleted once Picard MarkDuplicates completes.</p>
         </div>
     </div>
 
@@ -483,14 +583,13 @@ rule alignment_stats:
         </div>
         <pre>
 rule multiqc_alignment:
-    # Aggregates: samtools stats + flagstat + dedup metrics
+    # Aggregates: samtools stats + flagstat + Picard MarkDuplicates metrics
     # Output: reports/qc2_alignment/multiqc_alignment.html</pre>
         <table class="metrics-table">
             <tr><th>Metric</th><th>Expected</th><th>Action if Failed</th></tr>
             <tr><td>Mapped reads</td><td>&gt; 95%</td><td>Check reference genome suitability</td></tr>
             <tr><td>Properly paired</td><td>&gt; 90%</td><td>Check library prep, insert size</td></tr>
-            <tr><td>Duplication rate</td><td>&lt; 30%</td><td>May indicate over-amplification</td></tr>
-            <tr><td>Insert size</td><td>~600 bp (matching library prep)</td><td>Library QC issue if bimodal</td></tr>
+            <tr><td>Duplication rate (Picard)</td><td>&lt; 30%</td><td>May indicate over-amplification; Picard reports optical vs PCR breakdown &amp; estimated library size</td></tr>
             <tr><td>Error rate</td><td>&lt; 1%</td><td>Sequencing quality issue</td></tr>
         </table>
         <div class="warning">
@@ -505,7 +604,7 @@ rule multiqc_alignment:
     <h2 id="phase4">6. Phase 4-5: Variant Calling and Filtering</h2>
     <div class="phase">
         <h3>Objective</h3>
-        <p>Call variants jointly across all samples and apply quality filters to produce a clean set of biallelic SNPs.</p>
+        <p>Call variants jointly across all 10 samples (5 NN + 5 DD) and apply quality filters to produce a clean set of biallelic SNPs.</p>
 
         <h3>Tools &amp; Parameters</h3>
         <table>
@@ -538,25 +637,16 @@ rule multiqc_alignment:
         </table>
 
         <div class="tip">
-            <p><strong>Parallelisation:</strong> Variant calling is split per chromosome/scaffold (70 regions), enabling parallel execution across the 22 available cores. Results are concatenated with <code>bcftools concat</code>.</p>
+            <p><strong>Parallelisation:</strong> Variant calling is split per chromosome/scaffold (70 regions), enabling parallel execution across the 24 available cores. Results are concatenated with <code>bcftools concat</code>.</p>
         </div>
 
         <h3>Snakemake Rules</h3>
         <pre>
-rule create_bam_list:
-    # Generate list of all dedup BAMs for bcftools
-
-rule bcftools_call:
-    # Per-region: bcftools mpileup | bcftools call &rarr; {region}.vcf.gz
-
-rule concat_vcfs:
-    # bcftools concat all per-region VCFs &rarr; raw_variants.vcf.gz
-
-rule filter_variants:
-    # bcftools filter + norm &rarr; filtered_variants.vcf.gz
-
-rule variant_stats_raw / variant_stats_filtered:
-    # bcftools stats on both VCFs</pre>
+rule create_bam_list:        # Generate list of all 10 dedup BAMs for bcftools
+rule bcftools_call:          # Per-region: bcftools mpileup | bcftools call &rarr; {region}.vcf.gz
+rule concat_vcfs:            # bcftools concat all per-region VCFs &rarr; raw_variants.vcf.gz
+rule filter_variants:        # bcftools filter + norm &rarr; filtered_variants.vcf.gz
+rule variant_stats_raw/filtered:  # bcftools stats on both VCFs</pre>
     </div>
 
     <div class="checkpoint">
@@ -601,7 +691,7 @@ rule multiqc_variants:
             <tr>
                 <td>Sample QC</td>
                 <td>PLINK 2.0</td>
-                <td>Missingness &le; 10%, heterozygosity within 3 SD, relatedness (KING &lt; 0.0442)</td>
+                <td>Missingness &le; 10%, heterozygosity within 3 SD</td>
             </tr>
             <tr>
                 <td>LD pruning</td>
@@ -630,16 +720,12 @@ rule pca:                  # Calculate 10 PCs</pre>
             <strong>GWAS-Ready Data Report</strong>
         </div>
         <pre>
-rule gwas_qc_stats:
-    # Generate custom MultiQC YAML from PLINK outputs
-
-rule multiqc_gwas:
-    # Output: reports/qc4_gwas/multiqc_gwas.html</pre>
+rule gwas_qc_stats:    # Generate custom MultiQC YAML from PLINK outputs
+rule multiqc_gwas:     # Output: reports/qc4_gwas/multiqc_gwas.html</pre>
         <table class="metrics-table">
             <tr><th>Metric</th><th>Threshold</th><th>Action</th></tr>
             <tr><td>Sample missingness</td><td>&lt; 10%</td><td>Remove samples exceeding threshold</td></tr>
             <tr><td>Heterozygosity (F)</td><td>Within 3 SD of mean</td><td>Remove outliers</td></tr>
-            <tr><td>Relatedness (KING)</td><td>Kinship &lt; 0.0442</td><td>Remove one of related pairs</td></tr>
             <tr><td>PCA outliers</td><td>No extreme outliers</td><td>Investigate ancestry differences</td></tr>
         </table>
     </div>
@@ -650,6 +736,7 @@ rule multiqc_gwas:
     <h2 id="phase8">8. Phase 8-9: Association Analysis &amp; Visualization</h2>
     <div class="phase">
         <h3>GWAS Association (Phase 8)</h3>
+        <p>Compare NN (non-diapause, coded as 1/control) vs DD (diapause, coded as 2/case) using logistic regression.</p>
         <pre>
 rule gwas_association:
     # PLINK 2.0 --glm firth-fallback hide-covar
@@ -731,82 +818,17 @@ rule plot_results:
         <tr><td>FastQC</td><td>0.12+</td><td>envs/qc.yaml</td><td>Read quality assessment</td><td>QC1</td></tr>
         <tr><td>fastp</td><td>0.23+</td><td>envs/qc.yaml</td><td>Read trimming &amp; filtering</td><td>QC1</td></tr>
         <tr><td>MultiQC</td><td>1.21+</td><td>envs/qc.yaml</td><td>Aggregate QC reports</td><td>All</td></tr>
-        <tr><td>BWA-MEM2</td><td>2.2+</td><td>envs/align.yaml</td><td>Read alignment</td><td>QC2</td></tr>
-        <tr><td>samtools</td><td>1.19+</td><td>envs/align.yaml</td><td>BAM processing &amp; stats</td><td>QC2</td></tr>
+        <tr><td>BWA-MEM2</td><td>2.2+</td><td>envs/align.yaml</td><td>Read alignment (7 threads, 3 concurrent)</td><td>QC2</td></tr>
+        <tr><td>samtools</td><td>1.19+</td><td>envs/align.yaml</td><td>BAM sort, index &amp; stats</td><td>QC2</td></tr>
+        <tr><td>Picard</td><td>3.0+</td><td>envs/align.yaml</td><td>Mark PCR &amp; optical duplicates (MarkDuplicates)</td><td>QC2</td></tr>
         <tr><td>bcftools</td><td>1.19+</td><td>envs/variant.yaml</td><td>Variant calling (mpileup/call), filtering &amp; stats</td><td>QC3</td></tr>
         <tr><td>htslib</td><td>1.19+</td><td>envs/variant.yaml</td><td>bgzip, tabix</td><td>QC3</td></tr>
         <tr><td>PLINK 2.0</td><td>2.00a5+</td><td>envs/gwas.yaml</td><td>GWAS QC &amp; association</td><td>QC4</td></tr>
         <tr><td>R</td><td>4.3+</td><td>envs/plotting.yaml</td><td>Visualization</td><td>QC4</td></tr>
-        <tr><td>QUAST</td><td>5.2+</td><td>pip</td><td>Genome assembly QC</td><td>Pre-pipeline</td></tr>
     </table>
 
-    <!-- ================================================================ -->
-    <!-- CHANGES FROM V1 -->
-    <!-- ================================================================ -->
-    <h2 id="changes">11. Changes from v1</h2>
-    <div class="phase">
-        <table>
-            <tr><th>Aspect</th><th>v1</th><th>v2 (this document)</th></tr>
-            <tr>
-                <td>Reference genome</td>
-                <td>Generic placeholder</td>
-                <td><em>P. aegeria</em> ilParAegt1.1 with <span class="change">edited</span> headers (chr 1-27, W, Z)</td>
-            </tr>
-            <tr>
-                <td>Genome validation</td>
-                <td>None</td>
-                <td>QUAST comparison confirms identical sequences after header edit</td>
-            </tr>
-            <tr>
-                <td>Sample input</td>
-                <td><code>fastq_dir</code> glob</td>
-                <td><code>samples.tsv</code> mapping NGI IDs to FASTQ paths</td>
-            </tr>
-            <tr>
-                <td>Samples</td>
-                <td>Generic "96 samples"</td>
-                <td>94 samples (P33459_101&ndash;P33459_194), 5 groups (K, L, F, Ku, G)</td>
-            </tr>
-            <tr>
-                <td>Test strategy</td>
-                <td>Not specified</td>
-                <td>Start with 2 samples (P33459_101, P33459_125)</td>
-            </tr>
-            <tr>
-                <td>Package manager</td>
-                <td>conda</td>
-                <td><strong>micromamba</strong></td>
-            </tr>
-            <tr>
-                <td>Workflow</td>
-                <td>Shell scripts / manual</td>
-                <td><strong>Snakemake</strong> with per-rule conda envs</td>
-            </tr>
-            <tr>
-                <td>Aligner</td>
-                <td>BWA-MEM (v1 Snakefile) / BWA-MEM2 (v1 HTML)</td>
-                <td><strong>BWA-MEM2</strong> consistently</td>
-            </tr>
-            <tr>
-                <td>Variant caller</td>
-                <td>FreeBayes</td>
-                <td><strong>bcftools mpileup/call</strong> (per-chromosome parallelisation)</td>
-            </tr>
-            <tr>
-                <td>Execution</td>
-                <td>Not specified / 8 cores</td>
-                <td>Local Mac (28 cores, ~100 GB RAM) — <strong>22 cores</strong> (80%)</td>
-            </tr>
-            <tr>
-                <td>FASTQ naming</td>
-                <td><code>{sample}_R1.fastq.gz</code></td>
-                <td>NGI convention: <code>P33459_{n}_S{x}_L006_R{1,2}_001.fastq.gz</code></td>
-            </tr>
-        </table>
-    </div>
-
     <hr>
-    <p><em>Generated on 2026-03-04 | Project: P33459 / Megera_2 | Pipeline v2</em></p>
-    <p><em>GitHub: <a href="https://github.com/bioinfowheat/AnnaGWAS">bioinfowheat/AnnaGWAS</a></em></p>
+    <p><em>Generated on 2026-03-04 | Project: YF-4363 / XI-4103 (snpseq01427) | Pipeline v2</em></p>
+    <p><em>NN (non-diapause) vs DD (diapause) &mdash; 10 samples from <em>Pararge aegeria</em></em></p>
 </body>
 </html>

@@ -1,0 +1,30 @@
+PLINK v2.0.0-a.6.5 M1 (22 Dec 2024)
+Options in effect:
+  --allow-extra-chr
+  --bfile /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/variants_qc_samples
+  --chr 2
+  --chr-set 27
+  --extract chr2_thin_snps.txt
+  --out ld_all_chr2
+  --r2-unphased square
+
+Hostname: wlan-su-10-201-42-203.local.su.se
+Working directory: /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/LDplot
+Start time: Mon Mar  9 17:30:36 2026
+
+Random number seed: 1773073836
+98304 MiB RAM detected; reserving 49152 MiB for main workspace.
+Using up to 28 threads (change this with --threads).
+84 samples (0 females, 0 males, 84 ambiguous; 84 founders) loaded from
+/Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/variants_qc_samples.fam.
+Note: 2 nonstandard chromosome codes present.
+143795 out of 3120200 variants loaded from
+/Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/variants_qc_samples.bim.
+Note: No phenotype data present.
+--extract: 3995 variants remaining.
+Calculating allele frequencies... done.
+3995 variants remaining after main filters.
+--r2-unphased: Variant IDs written to ld_all_chr2.unphased.vcor2.vars .
+--r2-unphased: Matrix written to ld_all_chr2.unphased.vcor2 .
+
+End time: Mon Mar  9 17:30:36 2026

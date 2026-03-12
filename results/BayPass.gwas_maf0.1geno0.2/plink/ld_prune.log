@@ -1,0 +1,30 @@
+PLINK v2.0.0-a.6.5 M1 (22 Dec 2024)
+Options in effect:
+  --allow-extra-chr
+  --bfile /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/variants_qc_samples
+  --chr-set 27
+  --indep-pairwise 50 5 0.2
+  --out /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/ld_prune
+
+Hostname: wlan-su-10-201-42-203.local.su.se
+Working directory: /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/gwas_maf0.1geno0.2
+Start time: Mon Mar  9 10:12:43 2026
+
+Random number seed: 1773047563
+98304 MiB RAM detected; reserving 49152 MiB for main workspace.
+Using up to 28 threads (change this with --threads).
+84 samples (0 females, 0 males, 84 ambiguous; 84 founders) loaded from
+/Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/variants_qc_samples.fam.
+Note: 2 nonstandard chromosome codes present.
+3120200 variants loaded from
+/Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/variants_qc_samples.bim.
+Note: No phenotype data present.
+Calculating allele frequencies... done.
+--indep-pairwise (26 compute threads): 2933379/3120200 variants removed.
+Variant lists written to
+/Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/ld_prune.prune.in
+and
+/Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/ld_prune.prune.out
+.
+
+End time: Mon Mar  9 10:12:44 2026

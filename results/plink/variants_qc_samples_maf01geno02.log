@@ -1,0 +1,31 @@
+PLINK v2.0.0-a.7 M1 (28 Feb 2026)
+Options in effect:
+  --allow-extra-chr
+  --bfile results/plink/variants_qc_maf01geno02
+  --chr-set 27
+  --make-bed
+  --mind 0.1
+  --out results/plink/variants_qc_samples_maf01geno02
+
+Hostname: wlan-su-10-201-42-203.local.su.se
+Working directory: /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS
+Start time: Sat Mar  7 12:03:25 2026
+
+Random number seed: 1772881405
+98304 MiB RAM detected; reserving 49152 MiB for main workspace.
+Using up to 28 threads (change this with --threads).
+94 samples (0 females, 0 males, 94 ambiguous; 94 founders) loaded from
+results/plink/variants_qc_maf01geno02.fam.
+Note: 18 nonstandard chromosome codes present.
+3549500 variants loaded from results/plink/variants_qc_maf01geno02.bim.
+Note: No phenotype data present.
+Calculating sample missingness rates... done.
+6 samples removed due to missing genotype data (--mind).
+IDs written to results/plink/variants_qc_samples_maf01geno02.mindrem.id .
+88 samples (0 females, 0 males, 88 ambiguous; 88 founders) remaining after main
+filters.
+Writing results/plink/variants_qc_samples_maf01geno02.fam ... done.
+Writing results/plink/variants_qc_samples_maf01geno02.bim ... done.
+Writing results/plink/variants_qc_samples_maf01geno02.bed ... done.
+
+End time: Sat Mar  7 12:03:25 2026

@@ -1,0 +1,30 @@
+PLINK v2.0.0-a.7 M1 (28 Feb 2026)
+Options in effect:
+  --allow-extra-chr
+  --chr-set 27
+  --make-bed
+  --out results/plink/variants
+  --set-missing-var-ids @:#:\$r:\$a
+  --vcf results/variants/filtered_variants.vcf.gz
+
+Hostname: wlan-su-10-201-42-203.local.su.se
+Working directory: /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS
+Start time: Sat Mar  7 01:38:01 2026
+
+Random number seed: 1772843881
+98304 MiB RAM detected; reserving 49152 MiB for main workspace.
+Using up to 28 threads (change this with --threads).
+--vcf: 6131342 variants scanned.
+--vcf: results/plink/variants-temporary.pgen +
+results/plink/variants-temporary.pvar.zst +
+results/plink/variants-temporary.psam written.
+94 samples (0 females, 0 males, 94 ambiguous; 94 founders) loaded from
+results/plink/variants-temporary.psam.
+Note: 38 nonstandard chromosome codes present.
+6131342 variants loaded from results/plink/variants-temporary.pvar.zst.
+Note: No phenotype data present.
+Writing results/plink/variants.fam ... done.
+Writing results/plink/variants.bim ... done.
+Writing results/plink/variants.bed ... done.
+
+End time: Sat Mar  7 01:38:09 2026

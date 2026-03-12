@@ -1,0 +1,118 @@
+================================================================================
+BWA-MEM2 MAPPING BENCHMARK — YF-4363 (10 samples, Pararge aegeria)
+================================================================================
+Date:       2026-03-04
+Machine:    Mac, 28 cores, ~90 GB RAM
+Settings:   --cores 24, bwa-mem2 -t 7, samtools sort -@ 2 -m 10G
+Concurrent: 3 alignments at a time
+Genome:     ilParAegt1.1 (GCF_905163445.1), ~470 Mb
+Pipeline:   bwa-mem2 mem | samtools sort (piped, no intermediate unsorted BAM)
+Start time: 18:26:30
+
+INPUT FILE SIZES (trimmed FASTQ, R1+R2 combined):
+  nr1:  3.7G (R1: 1.8G, R2: 1.9G)
+  nr2:  2.6G (R1: 1.3G, R2: 1.3G)
+  nr3:  3.3G (R1: 1.6G, R2: 1.7G)
+  nr4:  2.6G (R1: 1.3G, R2: 1.3G)
+  nr5:  3.6G (R1: 1.8G, R2: 1.8G)
+  nr13: 3.4G (R1: 1.7G, R2: 1.7G)
+  nr14: 3.0G (R1: 1.5G, R2: 1.5G)
+  nr15: 4.0G (R1: 2.0G, R2: 2.0G)
+  nr16: 2.6G (R1: 1.3G, R2: 1.3G)
+  nr17: 2.7G (R1: 1.3G, R2: 1.4G)
+
+BATCH 1 (started 18:26:30): nr1, nr3, nr15
+
+COMPLETION TIMES:
+(to be filled as alignments complete)
+  nr3: completed at 18:52:21, sorted BAM size: 938M
+  nr1: completed at 18:55:54, sorted BAM size: 807M
+  nr15: completed at 19:00:59, sorted BAM size: 371M
+  nr13: completed at 19:20:48, sorted BAM size: 695M
+  nr16: completed at 10:57:04, sorted BAM size: 214M
+  nr4: completed at 11:10:55, sorted BAM size: 964M
+  nr2: completed at 11:18:40, sorted BAM size: 612M
+  nr14: completed at 11:35:09, sorted BAM size: 326M
+  nr5: completed at 11:35:09, sorted BAM size: 837M
+  nr17: completed at 11:47:52, sorted BAM size: 1.0G
+  nr40: completed at 15:42:56, sorted BAM size: 133M
+  nr30: completed at 15:51:12, sorted BAM size: 97M
+  nr10: completed at 16:10:11, sorted BAM size: 343M
+  nr85: completed at 16:43:12, sorted BAM size: 161M
+  nr80: completed at 16:47:17, sorted BAM size: 460M
+  nr90: completed at 16:49:19, sorted BAM size: 644M
+  nr75: completed at 17:15:23, sorted BAM size: 636M
+  nr70: completed at 17:28:43, sorted BAM size: 534M
+  nr91: completed at 17:39:56, sorted BAM size: 100M
+  nr31: completed at 17:50:07, sorted BAM size: 727M
+  nr6: completed at 18:15:21, sorted BAM size: 442M
+  nr46: completed at 18:23:00, sorted BAM size: 965M
+  nr71: completed at 18:24:01, sorted BAM size: 171M
+  nr61: completed at 18:54:24, sorted BAM size: 145M
+  nr21: completed at 18:54:55, sorted BAM size: 159M
+  nr51: completed at 19:10:48, sorted BAM size: 271M
+  nr76: completed at 19:18:27, sorted BAM size: 794M
+  nr73: completed at 19:30:18, sorted BAM size: 640M
+  nr26: completed at 19:45:18, sorted BAM size: 251M
+  nr29: completed at 19:56:00, sorted BAM size: 71M
+  nr83: completed at 20:23:19, sorted BAM size: 611M
+  nr69: completed at 20:25:21, sorted BAM size: 774M
+  nr19: completed at 20:56:15, sorted BAM size: 163M
+  nr59: completed at 21:29:13, sorted BAM size: 880M
+  nr49: completed at 21:35:50, sorted BAM size: 295M
+  nr89: completed at 21:41:57, sorted BAM size: 212M
+  nr64: completed at 21:52:06, sorted BAM size: 725M
+  nr79: completed at 21:58:26, sorted BAM size: 9.6M
+  nr94: completed at 22:05:34, sorted BAM size: 400M
+  nr84: completed at 22:19:18, sorted BAM size: 687M
+  nr34: completed at 09:52:36, sorted BAM size: 755M
+  nr20: completed at 09:54:39, sorted BAM size: 791M
+  nr54: completed at 10:12:08, sorted BAM size: 137M
+  nr24: completed at 10:19:17, sorted BAM size: 233M
+  nr36: completed at 10:33:07, sorted BAM size: 495M
+  nr74: completed at 10:39:50, sorted BAM size: 231M
+  nr82: completed at 10:46:58, sorted BAM size: 589M
+  nr62: completed at 11:07:01, sorted BAM size: 925M
+  nr12: completed at 11:13:39, sorted BAM size: 741M
+  nr22: completed at 11:26:29, sorted BAM size: 123M
+  nr52: completed at 11:32:41, sorted BAM size: 270M
+  nr42: completed at 11:41:21, sorted BAM size: 256M
+  nr32: completed at 12:08:08, sorted BAM size: 138M
+  nr92: completed at 12:12:44, sorted BAM size: 432M
+  nr72: completed at 12:43:04, sorted BAM size: 121M
+  nr68: completed at 12:44:36, sorted BAM size: 249M
+  nr48: completed at 12:47:09, sorted BAM size: 865M
+  nr47: completed at 13:28:11, sorted BAM size: 935M
+  nr44: completed at 13:37:22, sorted BAM size: 64M
+  nr67: completed at 13:56:17, sorted BAM size: 867M
+  nr57: completed at 14:05:38, sorted BAM size: 131M
+  nr37: completed at 14:14:18, sorted BAM size: 834M
+  nr87: completed at 14:31:38, sorted BAM size: 580M
+  nr77: completed at 14:47:01, sorted BAM size: 356M
+  nr56: completed at 15:01:21, sorted BAM size: 7.6M
+  nr65: completed at 15:05:26, sorted BAM size: 167M
+  nr45: completed at 15:14:37, sorted BAM size: 960M
+  nr25: completed at 15:34:08, sorted BAM size: 30M
+  nr55: completed at 15:34:39, sorted BAM size: 269M
+  nr35: completed at 15:46:24, sorted BAM size: 853M
+  nr11: completed at 15:53:33, sorted BAM size: 1.1G
+  nr50: completed at 16:08:29, sorted BAM size: 202M
+  nr60: completed at 16:13:04, sorted BAM size: 37M
+  nr63: completed at 16:34:42, sorted BAM size: 225M
+  nr53: completed at 16:42:20, sorted BAM size: 200M
+  nr88: completed at 16:54:06, sorted BAM size: 0B
+  nr33: completed at 16:56:08, sorted BAM size: 623M
+  nr43: completed at 17:23:25, sorted BAM size: 799M
+  nr78: completed at 17:27:30, sorted BAM size: 765M
+  nr28: completed at 17:39:14, sorted BAM size: 509M
+  nr23: completed at 17:53:34, sorted BAM size: 833M
+  nr18: completed at 17:58:09, sorted BAM size: 814M
+  nr38: completed at 18:38:56, sorted BAM size: 883M
+  nr81: completed at 18:59:22, sorted BAM size: 904M
+  nr93: completed at 19:13:55, sorted BAM size: 711M
+  nr41: completed at 19:22:35, sorted BAM size: 441M
+  nr86: completed at 19:51:58, sorted BAM size: 580M
+  nr66: completed at 19:58:05, sorted BAM size: 764M
+  nr58: completed at 20:21:15, sorted BAM size: 383M
+  nr27: completed at 20:38:36, sorted BAM size: 375M
+  nr39: completed at 21:14:14, sorted BAM size: 193M

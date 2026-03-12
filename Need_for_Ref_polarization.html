@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Need for Reference Genome Polarization in Introgression Analysis</title>
+    <style>
+        :root {
+            --bg: #fafafa;
+            --text: #1a1a2e;
+            --accent: #2b6cb0;
+            --accent2: #e53e3e;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --code-bg: #edf2f7;
+            --highlight: #fffbeb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background: var(--bg);
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            border-bottom: 3px solid var(--accent);
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        header .subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        header .date {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin: 2.5rem 0 1rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            color: #2d3748;
+            margin: 1.5rem 0 0.8rem;
+        }
+
+        p { margin-bottom: 1rem; }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .warning-card {
+            border-left: 4px solid var(--accent2);
+            background: #fff5f5;
+        }
+
+        .info-card {
+            border-left: 4px solid var(--accent);
+            background: #ebf8ff;
+        }
+
+        .success-card {
+            border-left: 4px solid #38a169;
+            background: #f0fff4;
+        }
+
+        ul, ol {
+            margin: 0.5rem 0 1rem 1.5rem;
+        }
+
+        li { margin-bottom: 0.4rem; }
+
+        .figure-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .figure-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .figure-caption {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 1rem;
+            text-align: left;
+            font-style: italic;
+        }
+
+        .figure-label {
+            font-weight: bold;
+            color: var(--text);
+            font-style: normal;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.6rem 0.8rem;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) { background: #f7fafc; }
+
+        .ref-list {
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .ref-list li {
+            margin-bottom: 0.6rem;
+        }
+
+        .ref-list a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .ref-list a:hover {
+            text-decoration: underline;
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+            font-family: 'SFMono-Regular', Consolas, monospace;
+        }
+
+        .toc {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .toc h3 { margin-top: 0; }
+
+        .toc ol {
+            margin-bottom: 0;
+        }
+
+        .toc a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .toc a:hover { text-decoration: underline; }
+
+        footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--border);
+            font-size: 0.85rem;
+            color: #999;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>The Need for Reference Genome Polarization in Introgression &amp; Backcross Analysis</h1>
+    <div class="subtitle">Why reference genome choice matters for haplotype inference, variant calling, and ancestry assignment</div>
+    <div class="date">March 2026 &mdash; GWAS/QTL Pipeline Documentation</div>
+</header>
+
+<nav class="toc">
+    <h3>Contents</h3>
+    <ol>
+        <li><a href="#problem">The Core Problem: Reference Bias</a></li>
+        <li><a href="#mapping-bias">Mapping Bias</a></li>
+        <li><a href="#variant-bias">Variant Calling Bias</a></li>
+        <li><a href="#haplotype">Haplotype Inference Problems</a></li>
+        <li><a href="#solutions">Solutions &amp; Mitigations</a></li>
+        <li><a href="#paris">Case Study: Paris et al. (2022) &mdash; Haplotype Polarization in Guppies</a></li>
+        <li><a href="#literature">Key Literature</a></li>
+        <li><a href="#recommendations">Practical Recommendations</a></li>
+    </ol>
+</nav>
+
+<!-- ============================================================ -->
+<h2 id="problem">1. The Core Problem: Reference Bias</h2>
+
+<p>When performing introgression analysis on backcross or admixed populations, the choice of reference genome has profound consequences for every downstream step. If the reference is unrelated to (or substantially divergent from) the individuals in the crosses, three compounding biases emerge:</p>
+
+<div class="card warning-card">
+    <h3>Three cascading biases</h3>
+    <ol>
+        <li><strong>Mapping bias</strong> &mdash; reads carrying non-reference alleles map less efficiently</li>
+        <li><strong>Variant calling bias</strong> &mdash; REF/ALT labels become arbitrary with respect to parental lineages</li>
+        <li><strong>Haplotype inference bias</strong> &mdash; ancestry tract detection is compromised</li>
+    </ol>
+    <p>Each bias feeds into the next, amplifying the distortion at every analytical layer.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="mapping-bias">2. Mapping Bias</h2>
+
+<p>Short reads containing alleles that differ from the reference are penalised during alignment. This creates <strong>asymmetric allele dropout</strong>: the parental lineage more distant from the reference loses reads at heterozygous sites, while the lineage closer to the reference is overrepresented.</p>
+
+<div class="figure-container">
+    <svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg">
+        <!-- Title -->
+        <text x="400" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a2e">Mapping Bias: Asymmetric Allele Dropout</text>
+
+        <!-- Reference genome bar -->
+        <rect x="50" y="60" width="700" height="30" rx="4" fill="#2b6cb0" opacity="0.15" stroke="#2b6cb0" stroke-width="1.5"/>
+        <text x="400" y="80" text-anchor="middle" font-size="13" fill="#2b6cb0" font-weight="bold">Reference Genome (unrelated lineage)</text>
+
+        <!-- Variant site marker -->
+        <rect x="370" y="55" width="60" height="40" rx="3" fill="none" stroke="#e53e3e" stroke-width="2" stroke-dasharray="4,3"/>
+        <text x="400" y="52" text-anchor="middle" font-size="10" fill="#e53e3e">variant site</text>
+
+        <!-- Parent A reads (close to ref) -->
+        <text x="50" y="125" font-size="13" font-weight="bold" fill="#38a169">Parent A reads (close to reference)</text>
+        <rect x="100" y="135" width="350" height="14" rx="3" fill="#38a169" opacity="0.6"/>
+        <rect x="150" y="155" width="350" height="14" rx="3" fill="#38a169" opacity="0.6"/>
+        <rect x="200" y="175" width="350" height="14" rx="3" fill="#38a169" opacity="0.6"/>
+        <rect x="120" y="195" width="350" height="14" rx="3" fill="#38a169" opacity="0.6"/>
+        <rect x="250" y="215" width="350" height="14" rx="3" fill="#38a169" opacity="0.6"/>
+        <!-- MAPQ labels -->
+        <text x="720" y="147" font-size="10" fill="#38a169">MAPQ 60</text>
+        <text x="720" y="167" font-size="10" fill="#38a169">MAPQ 60</text>
+        <text x="720" y="187" font-size="10" fill="#38a169">MAPQ 58</text>
+        <text x="720" y="207" font-size="10" fill="#38a169">MAPQ 60</text>
+        <text x="720" y="227" font-size="10" fill="#38a169">MAPQ 55</text>
+        <text x="462" y="233" font-size="11" font-weight="bold" fill="#38a169">5/5 mapped ✓</text>
+
+        <!-- Parent B reads (divergent from ref) -->
+        <text x="50" y="270" font-size="13" font-weight="bold" fill="#e53e3e">Parent B reads (divergent from reference)</text>
+        <rect x="130" y="280" width="350" height="14" rx="3" fill="#e53e3e" opacity="0.5"/>
+        <rect x="180" y="300" width="350" height="14" rx="3" fill="#e53e3e" opacity="0.5"/>
+        <rect x="220" y="320" width="350" height="14" rx="3" fill="#e53e3e" opacity="0.2" stroke="#e53e3e" stroke-width="1" stroke-dasharray="3,3"/>
+        <rect x="160" y="340" width="350" height="14" rx="3" fill="#e53e3e" opacity="0.2" stroke="#e53e3e" stroke-width="1" stroke-dasharray="3,3"/>
+        <rect x="280" y="360" width="350" height="14" rx="3" fill="#e53e3e" opacity="0.5"/>
+        <!-- MAPQ labels -->
+        <text x="720" y="292" font-size="10" fill="#e53e3e">MAPQ 42</text>
+        <text x="720" y="312" font-size="10" fill="#e53e3e">MAPQ 38</text>
+        <text x="720" y="332" font-size="10" fill="#999">MAPQ 5 ✗</text>
+        <text x="720" y="352" font-size="10" fill="#999">unmapped ✗</text>
+        <text x="720" y="372" font-size="10" fill="#e53e3e">MAPQ 35</text>
+        <text x="462" y="388" font-size="11" font-weight="bold" fill="#e53e3e">3/5 mapped (60%)</text>
+
+        <!-- Summary -->
+        <rect x="50" y="400" width="700" height="18" rx="3" fill="#fffbeb"/>
+        <text x="400" y="414" text-anchor="middle" font-size="11" fill="#744210">Result: heterozygous site appears homozygous for Parent A allele &mdash; false genotype call</text>
+    </svg>
+    <div class="figure-caption"><span class="figure-label">Figure 1.</span> Reads from the divergent parental lineage (Parent B, red) experience lower mapping quality and higher dropout rates at variant sites compared to the lineage closer to the reference (Parent A, green). At heterozygous sites, this asymmetry can cause the genotype caller to produce false homozygous calls for the reference-proximal allele.</div>
+</div>
+
+<p>Günther &amp; Nettelblad (2019) showed this effect is pervasive in ancient DNA datasets and scales with fragment length. The effect is exacerbated at low coverage &mdash; exactly the conditions common in population resequencing studies. More recently, Duntsch et al. (2025) demonstrated in gray foxes that mapping to a heterospecific reference loses 26&ndash;32% of SNPs compared to a conspecific reference, and dramatically alters F<sub>ST</sub>, nucleotide diversity, and effective population size estimates.</p>
+
+<!-- ============================================================ -->
+<h2 id="variant-bias">3. Variant Calling Bias</h2>
+
+<p>Even when reads from both parental lineages map successfully, the REF/ALT labels assigned during variant calling are <strong>arbitrary with respect to parental ancestry</strong> when using an unrelated reference. This creates a fundamental problem for introgression analysis.</p>
+
+<div class="figure-container">
+    <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+        <text x="400" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a2e">Variant Calling Bias: Arbitrary REF/ALT with Unrelated Reference</text>
+
+        <!-- Column headers -->
+        <text x="120" y="65" text-anchor="middle" font-size="13" font-weight="bold" fill="#666">Genomic Position</text>
+        <text x="310" y="65" text-anchor="middle" font-size="13" font-weight="bold" fill="#666">With Related Reference</text>
+        <text x="580" y="65" text-anchor="middle" font-size="13" font-weight="bold" fill="#666">With Unrelated Reference</text>
+
+        <!-- Dividing lines -->
+        <line x1="210" y1="50" x2="210" y2="480" stroke="#e2e8f0" stroke-width="1"/>
+        <line x1="440" y1="50" x2="440" y2="480" stroke="#e2e8f0" stroke-width="1"/>
+
+        <!-- Position labels -->
+        <text x="120" y="110" text-anchor="middle" font-size="12" fill="#1a1a2e">SNP 1 (pos 1,000)</text>
+        <text x="120" y="180" text-anchor="middle" font-size="12" fill="#1a1a2e">SNP 2 (pos 2,500)</text>
+        <text x="120" y="250" text-anchor="middle" font-size="12" fill="#1a1a2e">SNP 3 (pos 4,200)</text>
+        <text x="120" y="320" text-anchor="middle" font-size="12" fill="#1a1a2e">SNP 4 (pos 5,800)</text>
+        <text x="120" y="390" text-anchor="middle" font-size="12" fill="#1a1a2e">SNP 5 (pos 7,100)</text>
+
+        <!-- Related reference column -->
+        <!-- Parent A = REF consistently -->
+        <rect x="225" y="92" width="170" height="28" rx="4" fill="#f0fff4" stroke="#38a169" stroke-width="1"/>
+        <text x="310" y="111" text-anchor="middle" font-size="11" fill="#1a1a2e">REF=<tspan fill="#38a169" font-weight="bold">A</tspan> ALT=<tspan fill="#e53e3e" font-weight="bold">B</tspan></text>
+
+        <rect x="225" y="162" width="170" height="28" rx="4" fill="#f0fff4" stroke="#38a169" stroke-width="1"/>
+        <text x="310" y="181" text-anchor="middle" font-size="11" fill="#1a1a2e">REF=<tspan fill="#38a169" font-weight="bold">A</tspan> ALT=<tspan fill="#e53e3e" font-weight="bold">B</tspan></text>
+
+        <rect x="225" y="232" width="170" height="28" rx="4" fill="#f0fff4" stroke="#38a169" stroke-width="1"/>
+        <text x="310" y="251" text-anchor="middle" font-size="11" fill="#1a1a2e">REF=<tspan fill="#38a169" font-weight="bold">A</tspan> ALT=<tspan fill="#e53e3e" font-weight="bold">B</tspan></text>
+
+        <rect x="225" y="302" width="170" height="28" rx="4" fill="#f0fff4" stroke="#38a169" stroke-width="1"/>
+        <text x="310" y="321" text-anchor="middle" font-size="11" fill="#1a1a2e">REF=<tspan fill="#38a169" font-weight="bold">A</tspan> ALT=<tspan fill="#e53e3e" font-weight="bold">B</tspan></text>
+
+        <rect x="225" y="372" width="170" height="28" rx="4" fill="#f0fff4" stroke="#38a169" stroke-width="1"/>
+        <text x="310" y="391" text-anchor="middle" font-size="11" fill="#1a1a2e">REF=<tspan fill="#38a169" font-weight="bold">A</tspan> ALT=<tspan fill="#e53e3e" font-weight="bold">B</tspan></text>
+
+        <!-- Unrelated reference column - scrambled -->
+        <rect x="460" y="92" width="220" height="28" rx="4" fill="#fff5f5" stroke="#e53e3e" stroke-width="1"/>
+        <text x="570" y="111" text-anchor="middle" font-size="11" fill="#1a1a2e">REF=<tspan fill="#805ad5" font-weight="bold">X</tspan>=<tspan fill="#38a169">A</tspan> ALT=<tspan fill="#e53e3e" font-weight="bold">B</tspan></text>
+
+        <rect x="460" y="162" width="220" height="28" rx="4" fill="#fff5f5" stroke="#e53e3e" stroke-width="1"/>
+        <text x="570" y="181" text-anchor="middle" font-size="11" fill="#1a1a2e">REF=<tspan fill="#805ad5" font-weight="bold">X</tspan>=<tspan fill="#e53e3e">B</tspan> ALT=<tspan fill="#38a169" font-weight="bold">A</tspan></text>
+
+        <rect x="460" y="232" width="220" height="28" rx="4" fill="#fff5f5" stroke="#e53e3e" stroke-width="1"/>
+        <text x="570" y="251" text-anchor="middle" font-size="11" fill="#1a1a2e">REF=<tspan fill="#805ad5" font-weight="bold">X</tspan>=<tspan fill="#38a169">A</tspan> ALT=<tspan fill="#e53e3e" font-weight="bold">B</tspan></text>
+
+        <rect x="460" y="302" width="220" height="28" rx="4" fill="#fff5f5" stroke="#e53e3e" stroke-width="1"/>
+        <text x="570" y="321" text-anchor="middle" font-size="11" fill="#1a1a2e">REF=<tspan fill="#805ad5" font-weight="bold">X</tspan>=<tspan fill="#e53e3e">B</tspan> ALT=<tspan fill="#38a169" font-weight="bold">A</tspan></text>
+
+        <rect x="460" y="372" width="220" height="28" rx="4" fill="#fff5f5" stroke="#e53e3e" stroke-width="1"/>
+        <text x="570" y="391" text-anchor="middle" font-size="11" fill="#1a1a2e">REF=<tspan fill="#805ad5" font-weight="bold">X</tspan>≠A,B ALT=<tspan fill="#38a169">A</tspan>,<tspan fill="#e53e3e" font-weight="bold">B</tspan></text>
+
+        <!-- Arrows showing problem -->
+        <text x="570" y="425" text-anchor="middle" font-size="11" fill="#e53e3e" font-weight="bold">↑ Parent identity randomly shuffled</text>
+        <text x="570" y="445" text-anchor="middle" font-size="11" fill="#e53e3e">across REF/ALT at each site</text>
+
+        <!-- Summary boxes -->
+        <rect x="225" y="430" width="170" height="50" rx="6" fill="#f0fff4" stroke="#38a169" stroke-width="2"/>
+        <text x="310" y="452" text-anchor="middle" font-size="11" font-weight="bold" fill="#38a169">✓ Consistent</text>
+        <text x="310" y="470" text-anchor="middle" font-size="10" fill="#38a169">0/0 = Parent A homozygous</text>
+
+        <rect x="460" y="430" width="220" height="50" rx="6" fill="#fff5f5" stroke="#e53e3e" stroke-width="2"/>
+        <text x="570" y="452" text-anchor="middle" font-size="11" font-weight="bold" fill="#e53e3e">✗ Inconsistent</text>
+        <text x="570" y="470" text-anchor="middle" font-size="10" fill="#e53e3e">0/0 = Parent A OR Parent B?</text>
+    </svg>
+    <div class="figure-caption"><span class="figure-label">Figure 2.</span> When one parent is used as the reference (left), REF consistently represents Parent A alleles and ALT represents Parent B alleles. The genotype encoding (0/0, 0/1, 1/1) directly maps to parental ancestry. With an unrelated reference (right), the REF allele may happen to match Parent A at some sites and Parent B at others, or may carry a third allele (X) at some sites entirely. The 0/1 genotype encoding loses its ancestry meaning.</div>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="haplotype">4. Haplotype Inference Problems</h2>
+
+<p>For introgression analysis, the goal is to identify contiguous blocks of ancestry from each parental lineage along each chromosome. This requires:</p>
+
+<ul>
+    <li>Identifying <strong>diagnostic SNPs</strong> (sites fixed or nearly fixed for different alleles in each parent)</li>
+    <li><strong>Phasing</strong> alleles into haplotypes along chromosomes</li>
+    <li>Applying <strong>ancestry HMMs</strong> or similar methods to infer ancestry tracts</li>
+</ul>
+
+<p>An unrelated reference degrades all three steps.</p>
+
+<div class="figure-container">
+    <svg viewBox="0 0 800 580" xmlns="http://www.w3.org/2000/svg">
+        <text x="400" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a2e">Haplotype Inference: Parental Reference vs. Unrelated Reference</text>
+
+        <!-- ===== TOP PANEL: Parental reference ===== -->
+        <text x="50" y="65" font-size="14" font-weight="bold" fill="#38a169">A. Using Parent A as Reference</text>
+
+        <!-- Chromosome bar -->
+        <rect x="50" y="80" width="700" height="16" rx="3" fill="#e2e8f0"/>
+
+        <!-- Diagnostic SNP positions -->
+        <rect x="100" y="78" width="3" height="20" fill="#2b6cb0"/>
+        <rect x="180" y="78" width="3" height="20" fill="#2b6cb0"/>
+        <rect x="250" y="78" width="3" height="20" fill="#2b6cb0"/>
+        <rect x="330" y="78" width="3" height="20" fill="#2b6cb0"/>
+        <rect x="400" y="78" width="3" height="20" fill="#2b6cb0"/>
+        <rect x="470" y="78" width="3" height="20" fill="#2b6cb0"/>
+        <rect x="550" y="78" width="3" height="20" fill="#2b6cb0"/>
+        <rect x="620" y="78" width="3" height="20" fill="#2b6cb0"/>
+        <rect x="700" y="78" width="3" height="20" fill="#2b6cb0"/>
+
+        <!-- F1 hybrid haplotype 1 -->
+        <text x="50" y="125" font-size="11" fill="#666">BC1 individual (haplotype 1):</text>
+        <rect x="50" y="132" width="350" height="14" rx="3" fill="#38a169" opacity="0.7"/>
+        <rect x="400" y="132" width="350" height="14" rx="3" fill="#e53e3e" opacity="0.7"/>
+        <text x="225" y="143" text-anchor="middle" font-size="10" fill="white" font-weight="bold">0 0 0 0 0</text>
+        <text x="575" y="143" text-anchor="middle" font-size="10" fill="white" font-weight="bold">1 1 1 1</text>
+
+        <!-- F1 hybrid haplotype 2 -->
+        <text x="50" y="165" font-size="11" fill="#666">BC1 individual (haplotype 2):</text>
+        <rect x="50" y="172" width="700" height="14" rx="3" fill="#38a169" opacity="0.7"/>
+        <text x="400" y="183" text-anchor="middle" font-size="10" fill="white" font-weight="bold">0 0 0 0 0 0 0 0 0</text>
+
+        <!-- Ancestry assignment -->
+        <text x="50" y="210" font-size="11" fill="#666">Inferred ancestry:</text>
+        <rect x="50" y="216" width="350" height="20" rx="3" fill="#38a169" opacity="0.3" stroke="#38a169" stroke-width="1.5"/>
+        <text x="225" y="230" text-anchor="middle" font-size="10" font-weight="bold" fill="#38a169">Parent A</text>
+        <rect x="400" y="216" width="350" height="20" rx="3" fill="#e53e3e" opacity="0.3" stroke="#e53e3e" stroke-width="1.5"/>
+        <text x="575" y="230" text-anchor="middle" font-size="10" font-weight="bold" fill="#e53e3e">Parent B (introgressed)</text>
+
+        <!-- Recombination breakpoint arrow -->
+        <line x1="400" y1="128" x2="400" y2="242" stroke="#2b6cb0" stroke-width="2" stroke-dasharray="4,3"/>
+        <text x="400" y="255" text-anchor="middle" font-size="10" font-weight="bold" fill="#2b6cb0">↑ Recombination breakpoint clearly detected</text>
+
+        <!-- ===== BOTTOM PANEL: Unrelated reference ===== -->
+        <rect x="40" y="280" width="730" height="290" rx="6" fill="#fff5f5" opacity="0.5"/>
+        <text x="50" y="305" font-size="14" font-weight="bold" fill="#e53e3e">B. Using Unrelated Reference</text>
+
+        <!-- Chromosome bar -->
+        <rect x="50" y="320" width="700" height="16" rx="3" fill="#e2e8f0"/>
+
+        <!-- Diagnostic SNP positions - some missing due to mapping failure -->
+        <rect x="100" y="318" width="3" height="20" fill="#2b6cb0"/>
+        <!-- 180 missing -->
+        <rect x="250" y="318" width="3" height="20" fill="#2b6cb0"/>
+        <rect x="330" y="318" width="3" height="20" fill="#2b6cb0"/>
+        <!-- 400 missing -->
+        <rect x="470" y="318" width="3" height="20" fill="#2b6cb0"/>
+        <!-- 550 missing -->
+        <rect x="620" y="318" width="3" height="20" fill="#2b6cb0"/>
+        <rect x="700" y="318" width="3" height="20" fill="#2b6cb0"/>
+
+        <!-- X marks for lost sites -->
+        <text x="181" y="332" text-anchor="middle" font-size="12" fill="#999">✗</text>
+        <text x="401" y="332" text-anchor="middle" font-size="12" fill="#999">✗</text>
+        <text x="551" y="332" text-anchor="middle" font-size="12" fill="#999">✗</text>
+
+        <!-- BC1 individual - scrambled encoding -->
+        <text x="50" y="365" font-size="11" fill="#666">BC1 individual (haplotype 1):</text>
+        <rect x="50" y="372" width="700" height="14" rx="3" fill="#805ad5" opacity="0.3"/>
+        <!-- Scrambled genotypes -->
+        <text x="100" y="383" text-anchor="middle" font-size="10" font-weight="bold" fill="#38a169">0</text>
+        <text x="250" y="383" text-anchor="middle" font-size="10" font-weight="bold" fill="#e53e3e">1</text>
+        <text x="330" y="383" text-anchor="middle" font-size="10" font-weight="bold" fill="#38a169">0</text>
+        <text x="470" y="383" text-anchor="middle" font-size="10" font-weight="bold" fill="#e53e3e">1</text>
+        <text x="620" y="383" text-anchor="middle" font-size="10" font-weight="bold" fill="#38a169">0</text>
+        <text x="700" y="383" text-anchor="middle" font-size="10" font-weight="bold" fill="#e53e3e">1</text>
+
+        <!-- BC1 individual haplotype 2 -->
+        <text x="50" y="405" font-size="11" fill="#666">BC1 individual (haplotype 2):</text>
+        <rect x="50" y="412" width="700" height="14" rx="3" fill="#805ad5" opacity="0.3"/>
+        <text x="100" y="423" text-anchor="middle" font-size="10" font-weight="bold" fill="#38a169">0</text>
+        <text x="250" y="423" text-anchor="middle" font-size="10" font-weight="bold" fill="#e53e3e">1</text>
+        <text x="330" y="423" text-anchor="middle" font-size="10" font-weight="bold" fill="#38a169">0</text>
+        <text x="470" y="423" text-anchor="middle" font-size="10" font-weight="bold" fill="#38a169">0</text>
+        <text x="620" y="423" text-anchor="middle" font-size="10" font-weight="bold" fill="#38a169">0</text>
+        <text x="700" y="423" text-anchor="middle" font-size="10" font-weight="bold" fill="#38a169">0</text>
+
+        <!-- Scrambled ancestry -->
+        <text x="50" y="455" font-size="11" fill="#666">Inferred ancestry:</text>
+        <rect x="50" y="461" width="160" height="20" rx="3" fill="#38a169" opacity="0.3" stroke="#38a169" stroke-width="1"/>
+        <rect x="210" y="461" width="140" height="20" rx="3" fill="#805ad5" opacity="0.3" stroke="#805ad5" stroke-width="1"/>
+        <rect x="350" y="461" width="130" height="20" rx="3" fill="#38a169" opacity="0.3" stroke="#38a169" stroke-width="1"/>
+        <rect x="480" y="461" width="120" height="20" rx="3" fill="#805ad5" opacity="0.3" stroke="#805ad5" stroke-width="1"/>
+        <rect x="600" y="461" width="150" height="20" rx="3" fill="#e53e3e" opacity="0.3" stroke="#e53e3e" stroke-width="1"/>
+        <text x="130" y="475" text-anchor="middle" font-size="9" fill="#38a169">A?</text>
+        <text x="280" y="475" text-anchor="middle" font-size="9" fill="#805ad5">??</text>
+        <text x="415" y="475" text-anchor="middle" font-size="9" fill="#38a169">A?</text>
+        <text x="540" y="475" text-anchor="middle" font-size="9" fill="#805ad5">??</text>
+        <text x="675" y="475" text-anchor="middle" font-size="9" fill="#e53e3e">B?</text>
+
+        <!-- Warning text -->
+        <text x="400" y="510" text-anchor="middle" font-size="11" font-weight="bold" fill="#e53e3e">Fragmented, noisy ancestry tracts &mdash; false recombination breakpoints</text>
+        <text x="400" y="530" text-anchor="middle" font-size="10" fill="#e53e3e">Lost diagnostic SNPs + scrambled encoding = unreliable introgression detection</text>
+
+        <!-- Legend -->
+        <rect x="50" y="545" width="12" height="12" rx="2" fill="#38a169" opacity="0.7"/>
+        <text x="68" y="555" font-size="10" fill="#666">Parent A ancestry</text>
+        <rect x="200" y="545" width="12" height="12" rx="2" fill="#e53e3e" opacity="0.7"/>
+        <text x="218" y="555" font-size="10" fill="#666">Parent B ancestry</text>
+        <rect x="350" y="545" width="12" height="12" rx="2" fill="#805ad5" opacity="0.3"/>
+        <text x="368" y="555" font-size="10" fill="#666">Ambiguous</text>
+        <text x="500" y="555" font-size="10" fill="#999">✗ = lost variant site</text>
+    </svg>
+    <div class="figure-caption"><span class="figure-label">Figure 3.</span> <strong>Panel A:</strong> When Parent A is used as the reference, all diagnostic SNPs are retained, REF (0) consistently means "Parent A allele", and ancestry tracts are cleanly delimited. A single recombination breakpoint is correctly detected. <strong>Panel B:</strong> With an unrelated reference, some diagnostic SNPs are lost to mapping failure (✗), and among the retained sites, 0 (REF) sometimes corresponds to Parent A and sometimes to Parent B (depending on whether the unrelated reference happens to share an allele with one parent). The HMM sees a noisy, fragmented signal and infers multiple spurious recombination breakpoints.</div>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="solutions">5. Solutions &amp; Mitigations</h2>
+
+<div class="card success-card">
+    <h3>Ranked by effectiveness</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Approach</th>
+                <th>Description</th>
+                <th>When to use</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>1. Use a parental genome as reference</strong></td>
+                <td>Map all reads to one parent's genome. REF = Parent A, ALT = Parent B. Ancestry assignment is straightforward.</td>
+                <td>Best option if you have a genome assembly for one parent.</td>
+            </tr>
+            <tr>
+                <td><strong>2. Build a pseudo-reference</strong></td>
+                <td>If you have WGS data from both parents, build a consensus assembly for one parent and use that.</td>
+                <td>When parental WGS data exists but no assembly.</td>
+            </tr>
+            <tr>
+                <td><strong>3. Dual-reference mapping</strong></td>
+                <td>Map reads to both parental references independently, then compare. Tools like EAGLE or custom pipelines can leverage this.</td>
+                <td>When both parental assemblies exist.</td>
+            </tr>
+            <tr>
+                <td><strong>4. Post-hoc repolarization</strong></td>
+                <td>Map to unrelated reference, call variants, then use sequenced parental samples to reclassify alleles as "Parent A" vs "Parent B" origin.</td>
+                <td>When you have parental samples sequenced alongside backcross progeny. Some sensitivity lost from mapping bias.</td>
+            </tr>
+            <tr>
+                <td><strong>5. Ancestry HMMs on read counts</strong></td>
+                <td>Tools like <strong>Ancestry_HMM</strong> (Corbett-Detig &amp; Nielsen 2017) work directly on pileup data (raw allele counts) rather than called genotypes, partially mitigating reference bias at the genotype-calling step.</td>
+                <td>For any admixed/introgressed populations. Particularly valuable at low coverage.</td>
+            </tr>
+            <tr>
+                <td><strong>6. Pangenome / graph-based reference</strong></td>
+                <td>Use variation graph aligners (vg) or pangenomic references (PanVC 3) that incorporate population-level variation, reducing the single-reference bottleneck.</td>
+                <td>When population-level variation data is available for the species.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="figure-container">
+    <svg viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg">
+        <text x="400" y="25" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a2e">Decision Flowchart: Choosing a Reference Strategy</text>
+
+        <!-- Start node -->
+        <rect x="280" y="45" width="240" height="35" rx="17" fill="#2b6cb0" stroke="#2b6cb0" stroke-width="2"/>
+        <text x="400" y="67" text-anchor="middle" font-size="12" fill="white" font-weight="bold">Do you have parental genome assemblies?</text>
+
+        <!-- Yes branch -->
+        <line x1="400" y1="80" x2="200" y2="120" stroke="#38a169" stroke-width="2"/>
+        <text x="280" y="98" font-size="11" fill="#38a169" font-weight="bold">Yes</text>
+        <rect x="80" y="110" width="240" height="30" rx="6" fill="#f0fff4" stroke="#38a169" stroke-width="2"/>
+        <text x="200" y="130" text-anchor="middle" font-size="11" font-weight="bold" fill="#38a169">Use Parent A as reference ✓</text>
+
+        <!-- Both parents? -->
+        <line x1="200" y1="140" x2="200" y2="175" stroke="#38a169" stroke-width="1.5"/>
+        <rect x="80" y="170" width="240" height="30" rx="6" fill="#ebf8ff" stroke="#2b6cb0" stroke-width="1"/>
+        <text x="200" y="190" text-anchor="middle" font-size="10" fill="#2b6cb0">Both parents? → Dual-reference mapping</text>
+
+        <!-- No branch -->
+        <line x1="400" y1="80" x2="600" y2="120" stroke="#e53e3e" stroke-width="2"/>
+        <text x="520" y="98" font-size="11" fill="#e53e3e" font-weight="bold">No</text>
+
+        <!-- Second decision -->
+        <rect x="480" y="110" width="240" height="35" rx="17" fill="#805ad5" stroke="#805ad5" stroke-width="2"/>
+        <text x="600" y="132" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Do you have parental WGS data?</text>
+
+        <!-- Yes - pseudo ref -->
+        <line x1="600" y1="145" x2="480" y2="185" stroke="#38a169" stroke-width="2"/>
+        <text x="520" y="163" font-size="11" fill="#38a169" font-weight="bold">Yes</text>
+        <rect x="350" y="180" width="260" height="50" rx="6" fill="#f0fff4" stroke="#38a169" stroke-width="2"/>
+        <text x="480" y="200" text-anchor="middle" font-size="10" font-weight="bold" fill="#38a169">Build pseudo-reference from one parent</text>
+        <text x="480" y="218" text-anchor="middle" font-size="10" fill="#38a169">OR post-hoc repolarize with parental VCF</text>
+
+        <!-- No - worst case -->
+        <line x1="600" y1="145" x2="720" y2="185" stroke="#e53e3e" stroke-width="2"/>
+        <text x="680" y="163" font-size="11" fill="#e53e3e" font-weight="bold">No</text>
+        <rect x="620" y="180" width="160" height="55" rx="6" fill="#fff5f5" stroke="#e53e3e" stroke-width="2"/>
+        <text x="700" y="200" text-anchor="middle" font-size="10" font-weight="bold" fill="#e53e3e">Use Ancestry_HMM</text>
+        <text x="700" y="215" text-anchor="middle" font-size="9" fill="#e53e3e">on pileup data +</text>
+        <text x="700" y="228" text-anchor="middle" font-size="9" fill="#e53e3e">population ref panels</text>
+
+        <!-- Bottom recommendation -->
+        <rect x="150" y="270" width="500" height="60" rx="8" fill="#fffbeb" stroke="#d69e2e" stroke-width="2"/>
+        <text x="400" y="292" text-anchor="middle" font-size="12" font-weight="bold" fill="#744210">Key Principle</text>
+        <text x="400" y="312" text-anchor="middle" font-size="11" fill="#744210">Always include parental samples in your sequencing batch,</text>
+        <text x="400" y="328" text-anchor="middle" font-size="11" fill="#744210">even if you cannot use them as the reference genome.</text>
+    </svg>
+    <div class="figure-caption"><span class="figure-label">Figure 4.</span> Decision flowchart for choosing a reference genome strategy in introgression/backcross analysis. The best approach depends on what parental data is available.</div>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="paris">6. Case Study: Paris et al. (2022)</h2>
+
+<div class="card info-card">
+    <h3>Paper: "A large and diverse autosomal haplotype is associated with sex-linked colour polymorphism in the guppy"</h3>
+    <p><em>Paris JR, Whiting JR, Daniel MJ, et al. (2022) Nature Communications 13: 1233</em></p>
+</div>
+
+<p>This paper examines colour polymorphism in Trinidadian guppies (<em>Poecilia reticulata</em>) using Pool-seq of four Iso-Y breeding lines and whole-genome sequencing of wild-caught individuals. While the paper does not directly address reference genome bias in introgression, it provides an instructive example of how <strong>allele frequency polarization</strong> and <strong>haplotype phasing</strong> depend on reference choice.</p>
+
+<h3>Relevance to the reference polarization problem</h3>
+
+<ol>
+    <li><strong>Explicit allele frequency polarization.</strong> Paris et al. polarized allele frequencies to the major allele of Iso-Y9. This is a deliberate choice: different polarization choices would produce different allele frequency patterns and different haplotype interpretations. In an introgression context, polarizing to the wrong reference can mask or invert the signal of introgressed blocks.</li>
+
+    <li><strong>Complex haplotype structure.</strong> The authors found multiple derived haplotypes nested within an older haplotype on LG1. Detecting these haplotypes required careful analysis of bimodal allele frequency distributions. With an unrelated reference, the REF/ALT encoding at each site would be arbitrary, making these bimodal patterns much harder to detect and interpret.</li>
+
+    <li><strong>Genotype-dependent ancestry inference.</strong> The paper's haplotype analysis (Figure 5 in the paper) polarized phased haplotypes to the Iso-Y9 genotype, classifying each position as matching the "Iso-Y9 haplotype" or the "alternative haplotype." Breakpoints between phases were then identified. This approach is directly analogous to ancestry tract inference in introgression analysis &mdash; and it only works cleanly because the data was polarized to a meaningful reference.</li>
+
+    <li><strong>HOM REF / HOM ALT interpretation.</strong> The genotype plot in the paper (Figure 5a) shows long stretches of HOM REF (yellow) vs HOM ALT (purple) genotypes. These visual patterns, which reveal the haplotype structure, are entirely dependent on the reference allele definition. With an unrelated reference, the colour blocks would be scrambled and the haplotype structure would be obscured.</li>
+</ol>
+
+<div class="card warning-card">
+    <h3>Take-home message from Paris et al.</h3>
+    <p>Although the Paris et al. study used a conspecific guppy reference genome (appropriate for their within-species analysis), their analytical approach &mdash; particularly the allele frequency polarization to Iso-Y9 and the haplotype phasing against a reference genotype &mdash; illustrates exactly why reference choice matters. Had they used a distantly related fish genome as reference, the bimodal allele frequency patterns on LG1, the clean haplotype blocks, and the breakpoint detection would all have been compromised.</p>
+    <p>For your backcross introgression analysis in <em>Pararge aegeria</em>, the same principles apply with even greater urgency: if the reference genome is from a different subspecies or population, allele frequency patterns and haplotype blocks will be distorted at the very sites that carry the introgression signal.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="literature">7. Key Literature</h2>
+
+<h3>Reference bias &mdash; foundational studies</h3>
+<ol class="ref-list">
+    <li>Günther T &amp; Nettelblad C (2019). The presence and impact of reference bias on population genomic studies of prehistoric human populations. <em>PLoS Genetics</em> 15(7): e1008302. <a href="https://doi.org/10.1371/journal.pgen.1008302">doi:10.1371/journal.pgen.1008302</a><br>
+    <strong>Key finding:</strong> Reference bias causes heterozygous sites to be falsely called as homozygous; effect scales inversely with fragment length.</li>
+
+    <li>Peona V, Blom MPK, Xu L, et al. (2021). One is not enough: On the effects of reference genome for the mapping and subsequent analyses of short-reads. <em>PLoS Computational Biology</em> 17(1): e1008678. <a href="https://doi.org/10.1371/journal.pcbi.1008678">doi:10.1371/journal.pcbi.1008678</a><br>
+    <strong>Key finding:</strong> Even 2% reference divergence at low coverage shifts estimates of theta by 0.14&ndash;0.18-fold and distorts Tajima's D and Fay &amp; Wu's H.</li>
+
+    <li>Duntsch L, Lichtenauer S, Armstrong EE, et al. (2025). Reference genome choice compromises population genetic analyses. <em>Cell</em>. <a href="https://doi.org/10.1016/j.cell.2025.02.008">doi:10.1016/j.cell.2025.02.008</a><br>
+    <strong>Key finding:</strong> Conspecific mapping detects 26&ndash;32% more SNPs; F<sub>ST</sub>, N<sub>e</sub>, and selection scans all change substantially with heterospecific reference.</li>
+
+    <li>Lin MJ, Iyer S, Chen NC &amp; Langmead B (2024). Measuring, visualizing, and diagnosing reference bias with biastools. <em>Genome Biology</em> 25: 101. <a href="https://doi.org/10.1186/s13059-024-03240-8">doi:10.1186/s13059-024-03240-8</a></li>
+</ol>
+
+<h3>Reference bias in introgression &amp; comparative genomics</h3>
+<ol class="ref-list" start="5">
+    <li>Feulner PGD &amp; De-Kayne R (2025). Reference genome bias in light of species-specific chromosomal reorganization and translocations. <em>Genome Biology</em>. <a href="https://doi.org/10.1186/s13059-025-03761-w">doi:10.1186/s13059-025-03761-w</a><br>
+    <strong>Key finding:</strong> Distantly related reference leads to inaccurate detection of chromosomal inversions (wrong size and location).</li>
+
+    <li>Bohling JH (2020). Evaluating the effect of reference genome divergence on the analysis of empirical RADseq datasets. <em>Ecology and Evolution</em> 10: 7585&ndash;7601. <a href="https://doi.org/10.1002/ece3.6483">doi:10.1002/ece3.6483</a><br>
+    <strong>Key finding:</strong> Increasing divergence from reference reduces aligned reads, SNP counts, and F<sub>ST</sub> estimates (populations appear less differentiated).</li>
+
+    <li>Edelman NB, Frandsen PB, Miyagi M, et al. (2019). Genomic architecture and introgression shape a butterfly radiation. <em>Science</em> 366(6465): 594&ndash;599. <a href="https://doi.org/10.1126/science.aaw2090">doi:10.1126/science.aaw2090</a><br>
+    <strong>Key finding:</strong> Used clade-specific reference genomes for Heliconius, acknowledging that cross-clade mapping introduces bias.</li>
+
+    <li>Zhang W, Dasmahapatra KK, Mallet J, et al. (2016). Genome-wide introgression among distantly related <em>Heliconius</em> butterfly species. <em>Genome Biology</em> 17: 25. <a href="https://doi.org/10.1186/s13059-016-0889-0">doi:10.1186/s13059-016-0889-0</a></li>
+</ol>
+
+<h3>Ancestry HMM methods</h3>
+<ol class="ref-list" start="9">
+    <li>Corbett-Detig RB &amp; Nielsen R (2017). A Hidden Markov Model approach for simultaneously estimating local ancestry and admixture time using next generation sequence data. <em>PLoS Genetics</em> 13(1): e1006529. <a href="https://doi.org/10.1371/journal.pgen.1006529">doi:10.1371/journal.pgen.1006529</a><br>
+    <strong>Key finding:</strong> Ancestry_HMM works on raw read counts (pileup data) rather than called genotypes, partially mitigating reference bias.</li>
+
+    <li>Dias-Alves T, Mairal J &amp; Blum MGB (2018). Loter: A software package to infer local ancestry for a wide range of species. <em>Molecular Biology and Evolution</em> 35(9): 2318&ndash;2326. <a href="https://doi.org/10.1093/molbev/msy126">doi:10.1093/molbev/msy126</a><br>
+    <strong>Note:</strong> Loter requires phased genotypes and therefore inherits upstream reference bias from variant calling.</li>
+
+    <li>Svedberg J, Shokrof M, Paholkiv I &amp; Corbett-Detig RB (2021). Inferring adaptive introgression using hidden Markov models. <em>Molecular Biology and Evolution</em> 38(5): 2152&ndash;2165. <a href="https://doi.org/10.1093/molbev/msab014">doi:10.1093/molbev/msab014</a></li>
+</ol>
+
+<h3>Solutions &amp; mitigation approaches</h3>
+<ol class="ref-list" start="12">
+    <li>Chen NC, Solomon B, Mun T, et al. (2021). Reference flow: reducing reference bias using multiple population genomes. <em>Genome Biology</em> 22: 8. <a href="https://doi.org/10.1186/s13059-020-02229-3">doi:10.1186/s13059-020-02229-3</a></li>
+
+    <li>Martiniano R, Garrison E, Jones ER, et al. (2020). Removing reference bias and improving indel calling in ancient DNA data analysis by mapping to a sequence variation graph. <em>Genome Biology</em> 21: 18. <a href="https://doi.org/10.1186/s13059-020-02160-7">doi:10.1186/s13059-020-02160-7</a></li>
+
+    <li>Gallo M, et al. (2024). Tackling reference bias in genotyping by using founder sequences with PanVC 3. <em>Bioinformatics Advances</em> vbae027. <a href="https://doi.org/10.1093/bioadv/vbae027">doi:10.1093/bioadv/vbae027</a></li>
+</ol>
+
+<h3><em>Pararge aegeria</em> context</h3>
+<ol class="ref-list" start="15">
+    <li>Livraghi L, et al. (2018). Historical and current patterns of gene flow in the butterfly <em>Pararge aegeria</em>. <em>Journal of Biogeography</em> 45: 1628&ndash;1639. <a href="https://doi.org/10.1111/jbi.13354">doi:10.1111/jbi.13354</a><br>
+    <strong>Key finding:</strong> Deep lineage divergence within <em>P. aegeria</em> with discordant mitochondrial/nuclear patterns &mdash; precisely the situation where reference genome choice matters most.</li>
+</ol>
+
+<!-- ============================================================ -->
+<h2 id="recommendations">8. Practical Recommendations for Your <em>P. aegeria</em> Pipeline</h2>
+
+<div class="card success-card">
+    <h3>What to do</h3>
+    <ol>
+        <li><strong>Minimum:</strong> Include parental samples in your sequencing batch. After variant calling, use diagnostic SNPs (fixed differences between parents) to reclassify each VCF site by parental origin.</li>
+        <li><strong>Preferred:</strong> If parental WGS data is available, build a consensus assembly for one parent (e.g., using <code>bcftools consensus</code>) and re-map all reads to that pseudo-reference.</li>
+        <li><strong>For ancestry tract inference:</strong> Use <strong>Ancestry_HMM</strong> with pileup-mode input. It handles reference bias better than genotype-based methods (Loter, ELAI) because it works directly on raw read counts.</li>
+        <li><strong>Quantify the bias:</strong> Use <strong>biastools</strong> (Lin et al. 2024) to measure reference bias in your dataset before and after any mitigation.</li>
+        <li><strong>If stuck with the current reference:</strong> At minimum, filter for diagnostic SNPs where both parents are sequenced and allele assignments are unambiguous, then repolarize your VCF.</li>
+    </ol>
+</div>
+
+<div class="card warning-card">
+    <h3>What to avoid</h3>
+    <ul>
+        <li>Do not assume REF/ALT labels in your VCF correspond to parental ancestry.</li>
+        <li>Do not use genotype-based ancestry tools (Loter, LAMP) without first repolarizing your VCF to a meaningful reference.</li>
+        <li>Do not ignore the problem &mdash; even modest divergence (2&ndash;5%) between reference and study species can shift population genetic summary statistics by 15&ndash;30% (Peona et al. 2021).</li>
+    </ul>
+</div>
+
+<footer>
+    <p>Document generated for the <em>P. aegeria</em> GWAS/QTL pipeline project. &copy; 2026.</p>
+</footer>
+
+</body>
+</html>

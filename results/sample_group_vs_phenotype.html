@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<title>Sample Group vs Phenotype Concordance</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:#f8fafc;
+       color:#1e293b; line-height:1.6; max-width:1100px; margin:0 auto; padding:2rem; }
+h1 { font-size:1.5rem; margin-bottom:0.3rem; }
+.subtitle { color:#64748b; margin-bottom:1.5rem; font-size:0.9rem; }
+h2 { font-size:1.15rem; margin:1.5rem 0 0.8rem; border-bottom:2px solid #e2e8f0; padding-bottom:0.3rem; }
+h3 { font-size:1rem; margin:1rem 0 0.5rem; color:#334155; }
+.card { background:#fff; border:1px solid #e2e8f0; border-radius:8px;
+         padding:1.2rem; margin-bottom:1rem; box-shadow:0 1px 2px rgba(0,0,0,0.04); }
+table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+th { background:#f1f5f9; text-align:left; padding:0.5rem 0.7rem; font-weight:600;
+      border-bottom:2px solid #e2e8f0; }
+td { padding:0.4rem 0.7rem; border-bottom:1px solid #f1f5f9; }
+code { background:#f1f5f9; padding:0.15rem 0.4rem; border-radius:3px; font-size:0.82rem; }
+.badge { display:inline-block; padding:0.3rem 0.8rem; border-radius:6px;
+          color:white; font-weight:700; font-size:0.9rem; }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.grid .card { margin-bottom:0; }
+.highlight { color:#2563eb; font-weight:600; }
+.summary-box { background:linear-gradient(135deg, #eff6ff, #dbeafe); border:2px solid #3b82f6;
+                border-radius:10px; padding:1.5rem; margin:1.5rem 0; text-align:center; }
+.summary-box .big { font-size:2.5rem; font-weight:800; color:#1e3a8a; }
+</style></head><body>
+
+<h1>Sample Group vs Phenotype Concordance Check</h1>
+<div class="subtitle"><em>Pararge aegeria</em> GWAS &mdash; Comparing NN/DD group labels with 0/1 phenotype encoding</div>
+
+<div class="summary-box">
+<div class="big">100.0%</div>
+<div><span class="badge" style="background:#10b981;">PERFECT MATCH</span></div>
+<div style="margin-top:0.5rem;font-size:0.9rem;">94 / 94 samples concordant
+(mapping: <strong>NN = 0</strong>, <strong>DD = 1</strong>)</div>
+</div>
+
+<h2>Summary Statistics</h2>
+<div class="grid">
+<div class="card">
+<h3>samples.tsv (group labels)</h3>
+<table>
+<tr><td>Total samples</td><td class="highlight">94</td></tr>
+<tr><td>NN samples</td><td class="highlight">47</td></tr>
+<tr><td>DD samples</td><td class="highlight">47</td></tr>
+</table>
+</div>
+<div class="card">
+<h3>phenotypes.txt (0/1 encoding)</h3>
+<table>
+<tr><td>Total samples</td><td class="highlight">94</td></tr>
+<tr><td>Phenotype 0</td><td class="highlight">47</td></tr>
+<tr><td>Phenotype 1</td><td class="highlight">47</td></tr>
+</table>
+</div>
+</div>
+
+<div class="card" style="margin-top:1rem;">
+<table>
+<tr><td>Samples in both files</td><td class="highlight">94</td></tr>
+<tr><td>Concordant (NN=0, DD=1)</td><td class="highlight">94</td></tr>
+<tr><td>Discordant</td><td class="highlight" style="color:#10b981;">0</td></tr>
+<tr><td>Only in samples.tsv</td><td class="highlight">0</td></tr>
+<tr><td>Only in phenotypes.txt</td><td class="highlight">0</td></tr>
+</table>
+</div>
+
+
+
+
+<h2>Full Sample Table</h2>
+<div class="card" style="overflow-x:auto;max-height:600px;overflow-y:auto;">
+<table>
+<thead><tr><th>Sample ID</th><th>Group (samples.tsv)</th><th>Phenotype (phenotypes.txt)</th><th>Status</th></tr></thead>
+<tbody><tr><td>nr1</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr2</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr3</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr4</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr5</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr6</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr7</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr8</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr9</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr10</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr11</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr12</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr13</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr14</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr15</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr16</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr17</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr18</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr19</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr20</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr21</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr22</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr23</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr24</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr25</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr26</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr27</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr28</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr29</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr30</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr31</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr32</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr33</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr34</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr35</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr36</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr37</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr38</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr39</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr40</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr41</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr42</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr43</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr44</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr45</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr46</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr47</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr48</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr49</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr50</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr51</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr52</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr53</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr54</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr55</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr56</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr57</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr58</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr59</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr60</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr61</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr62</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr63</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr64</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr65</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr66</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr67</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr68</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr69</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr70</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr71</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr72</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr73</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr74</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr75</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr76</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr77</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr78</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr79</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr80</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr81</td><td>DD</td><td>1</td><td>Concordant</td></tr>
+<tr><td>nr82</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr83</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr84</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr85</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr86</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr87</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr88</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr89</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr90</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr91</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr92</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr93</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+<tr><td>nr94</td><td>NN</td><td>0</td><td>Concordant</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>Mapping Convention</h2>
+<div class="card">
+<p>The concordance check uses the mapping:</p>
+<ul style="margin:0.5rem 0 0 1.5rem;">
+<li><strong>NN</strong> (non-diapause) = <strong>phenotype 0</strong></li>
+<li><strong>DD</strong> (diapause) = <strong>phenotype 1</strong></li>
+</ul>
+<p style="margin-top:0.5rem;font-size:0.85rem;color:#64748b;">
+Source files: <code>samples.tsv</code> (group column) and <code>data/phenotypes.txt</code> (phenotype column).</p>
+</div>
+
+</body></html>

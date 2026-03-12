@@ -1,0 +1,25 @@
+PLINK v2.0.0-a.7 M1 (28 Feb 2026)
+Options in effect:
+  --allow-extra-chr
+  --bfile results/plink/variants_qc
+  --chr-set 27
+  --het
+  --out results/qc/samples/heterozygosity
+
+Hostname: wlan-su-10-201-42-203.local.su.se
+Working directory: /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS
+Start time: Sat Mar  7 01:38:10 2026
+
+Random number seed: 1772843890
+98304 MiB RAM detected; reserving 49152 MiB for main workspace.
+Using up to 28 threads (change this with --threads).
+94 samples (0 females, 0 males, 94 ambiguous; 94 founders) loaded from
+results/plink/variants_qc.fam.
+Note: 15 nonstandard chromosome codes present.
+4172019 variants loaded from results/plink/variants_qc.bim.
+Note: No phenotype data present.
+Calculating allele frequencies... done.
+--het: done.
+--het: Results written to results/qc/samples/heterozygosity.het .
+
+End time: Sat Mar  7 01:38:10 2026

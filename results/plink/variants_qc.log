@@ -1,0 +1,34 @@
+PLINK v2.0.0-a.7 M1 (28 Feb 2026)
+Options in effect:
+  --allow-extra-chr
+  --bfile results/plink/variants
+  --chr-set 27
+  --geno 0.1
+  --hwe 1e-6
+  --maf 0.05
+  --make-bed
+  --out results/plink/variants_qc
+
+Hostname: wlan-su-10-201-42-203.local.su.se
+Working directory: /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS
+Start time: Sat Mar  7 01:38:09 2026
+
+Random number seed: 1772843889
+98304 MiB RAM detected; reserving 49152 MiB for main workspace.
+Using up to 28 threads (change this with --threads).
+94 samples (0 females, 0 males, 94 ambiguous; 94 founders) loaded from
+results/plink/variants.fam.
+Note: 38 nonstandard chromosome codes present.
+6131342 variants loaded from results/plink/variants.bim.
+Note: No phenotype data present.
+Calculating allele frequencies... done.
+--geno: 511432 variants removed due to missing genotype data.
+--hwe: 69095 variants removed due to Hardy-Weinberg exact test (founders only).
+1378796 variants removed due to allele frequency threshold(s)
+(--maf/--max-maf/--mac/--max-mac).
+4172019 variants remaining after main filters.
+Writing results/plink/variants_qc.fam ... done.
+Writing results/plink/variants_qc.bim ... done.
+Writing results/plink/variants_qc.bed ... done.
+
+End time: Sat Mar  7 01:38:10 2026

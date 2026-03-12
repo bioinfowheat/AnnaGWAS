@@ -1,0 +1,42 @@
+PLINK v2.0.0-a.6.5 M1 (22 Dec 2024)
+Options in effect:
+  --allow-extra-chr
+  --chr-set 27
+  --make-bed
+  --new-id-max-allele-len 80
+  --out /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/variants_raw
+  --set-all-var-ids @:#:\$r:\$a
+  --vcf /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/vcf/freebayes_filtered.vcf.gz
+
+Hostname: wlan-su-10-201-42-203.local.su.se
+Working directory: /Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/gwas_maf0.1geno0.2
+Start time: Mon Mar  9 10:11:55 2026
+
+Random number seed: 1773047515
+98304 MiB RAM detected; reserving 49152 MiB for main workspace.
+Using up to 28 threads (change this with --threads).
+--vcf: 4748634 variants scanned.
+--vcf:
+/Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/variants_raw-temporary.pgen
++
+/Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/variants_raw-temporary.pvar.zst
++
+/Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/variants_raw-temporary.psam
+written.
+84 samples (0 females, 0 males, 84 ambiguous; 84 founders) loaded from
+/Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/variants_raw-temporary.psam.
+Note: 2 nonstandard chromosome codes present.
+4748634 variants loaded from
+/Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/variants_raw-temporary.pvar.zst.
+Note: No phenotype data present.
+Writing
+/Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/variants_raw.fam
+... done.
+Writing
+/Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/variants_raw.bim
+... done.
+Writing
+/Users/stockholmbutterflylab/sbl_claudecode/Annas_GWAS/results/BayPass.gwas_maf0.1geno0.2/plink/variants_raw.bed
+... done.
+
+End time: Mon Mar  9 10:12:07 2026
